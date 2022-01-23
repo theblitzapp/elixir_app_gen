@@ -1,0 +1,5 @@
+%{
+  "absinthe_generator": {:git, "https://github.com/MikaAK/absinthe_generator.git", "6335695d375d33562a1b868fa4dcaedd601a48f3", []},
+  "inflex": {:hex, :inflex, "2.0.0", "db69d542b8fdb23ac667f9bc0c2395a3983fa2da6ae2efa7ab5dc541928f7a75", [:mix], [], "hexpm", "c018852409bd48b03ad96ed53594186bc074bdd1519043a0ad1fa5697aac4399"},
+  "nimble_options": {:hex, :nimble_options, "0.4.0", "c89babbab52221a24b8d1ff9e7d838be70f0d871be823165c94dd3418eea728f", [:mix], [], "hexpm", "e6701c1af326a11eea9634a3b1c62b475339ace9456c1a23ec3bc9a847bca02d"},
+}
