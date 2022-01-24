@@ -49,37 +49,8 @@ defmodule PhoenixConfig.MixProject do
 
   defp docs do
     [
-      main: "AbsintheGenerator",
-      source_url: "https://github.com/MikaAK/absinthe_generator",
-
-      groups_for_modules: [
-        "Mutations": [
-          AbsintheGenerator.Mutation
-        ],
-
-        "Queries": [
-          AbsintheGenerator.Query
-        ],
-
-        "Resolvers": [
-          AbsintheGenerator.Resolver
-        ],
-
-        "Schemas": [
-          AbsintheGenerator.Schema,
-          AbsintheGenerator.Schema.Field,
-          AbsintheGenerator.Schema.Field.Argument,
-          AbsintheGenerator.Schema.DataSource,
-          AbsintheGenerator.Schema.Middleware
-        ],
-
-        "Types": [
-          AbsintheGenerator.Type,
-          AbsintheGenerator.Type.EnumValue,
-          AbsintheGenerator.Type.Object,
-          AbsintheGenerator.Type.Object.Field
-        ]
-      ]
+      main: "PhoenixConfig",
+      source_url: "https://github.com/theblitzapp/phoenix_config",
     ]
   end
 end

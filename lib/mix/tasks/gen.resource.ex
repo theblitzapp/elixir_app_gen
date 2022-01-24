@@ -4,13 +4,41 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
   alias Mix.PhoenixConfigHelpers
   alias PhoenixConfig.{EctoSchemaReflector, EctoContextGenerator}
 
-  @shortdoc "Lists help for phoenix_config.gen. commands"
+  @shortdoc "Creates a resource file that will be used to configure absinthe routes and can create schemas"
   @moduledoc """
-  This allows you to generate a resource file for a specific resource, from either a schema
-  or by passing in all schema fields and naming
+  You can use this to create all resources needed for a GraphQL API
+
+  ### Existing Schema
+  If you have an existing schema, you can use the `--from-ecto-schema` flag with the `--context` flag
+  to generate a config file for that specific flle
+
+  #### Example
+
+  ```bash
+  > mix phoenix_config.gen.resource --context MyApp.SomeContext --from-ecto-schema MyApp.SomeContext.Schema
+  ```
+
+  ### New Schema
+  If you're creating a new schema, you can pass in the same arguments you would to `mix phx.gen.schema`
+
+  #### Example
+
+  ```bash
+  > mix phoenix_config.gen.resource Accounts.User email:string name:string birthday:date
+  ```
+
+  ### Options
+  - `dirname` - The directory to generate the config files in
+  - `file_name` - The file name for the config
+  - `only` - Parts to generate (create, all, find, update, delete)
+  - `except` - Parts of the CRUD resource to exclude
+  - `context` - Context module if supplying `--from-ecto-schema`
+  - `from-ecto-schema` - Specify a specific module instead of generating a new schema
   """
 
   def run(args) do
+    PhoenixConfigHelpers.ensure_not_in_umbrella!("phoenix_config.gen.resource")
+
     {opts, extra_args, _} = OptionParser.parse(args,
       switches: [
         dirname: :string,

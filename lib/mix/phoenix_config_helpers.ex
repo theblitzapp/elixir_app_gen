@@ -19,6 +19,12 @@ defmodule Mix.PhoenixConfigHelpers do
     end
   end
 
+  def get_phoenix_config_files(dirname) do
+    directory = dirname || default_config_directory()
+
+    File.ls!(directory)
+  end
+
   def write_phoenix_config_file(dirname, file_path, contents) do
     directory = dirname || default_config_directory()
     full_path = Path.join(directory, "#{file_path}.exs")

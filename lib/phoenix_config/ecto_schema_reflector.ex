@@ -3,7 +3,7 @@ defmodule PhoenixConfig.EctoSchemaReflector do
     resource_fields = generate_resource_fields(ecto_schema)
 
     %AbsintheGenerator.CrudResource{
-      app_name: "PhoenixConfig",
+      app_name: Mix.Project.config[:app] |> to_string |> Macro.camelize,
       resource_name: ecto_module_resource_name(ecto_schema),
       context_module: ecto_context_module,
       only: only,
