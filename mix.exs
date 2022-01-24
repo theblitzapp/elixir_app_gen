@@ -8,6 +8,7 @@ defmodule PhoenixConfig.MixProject do
       elixir: "~> 1.12",
       description: "Config as code generation for phoenix applications, don't write apps, generate them",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       docs: docs(),
       package: package()
@@ -24,9 +25,18 @@ defmodule PhoenixConfig.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:absinthe_generator, github: "MikaAK/absinthe_generator"}
+      {:absinthe_generator, github: "MikaAK/absinthe_generator"},
+
+      {:phoenix, "~> 1.6"},
+      {:jason, "~> 1.3"},
+      {:ecto, "~> 3.7", optional: true, runtime: false, only: [:dev, :test]},
+      {:ecto_shorts, "~> 1.1", optional: true, runtime: false, only: [:dev, :test]}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(:dev), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp package do
     [

@@ -18,4 +18,11 @@ defmodule Mix.PhoenixConfigHelpers do
       Mix.raise("Must run mix phoenix_config.init before running this command")
     end
   end
+
+  def write_phoenix_config_file(dirname, file_path, contents) do
+    directory = dirname || default_config_directory()
+    full_path = Path.join(directory, "#{file_path}.exs")
+
+    Mix.Generator.create_file(full_path, contents)
+  end
 end
