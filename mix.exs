@@ -27,7 +27,7 @@ defmodule PhoenixConfig.MixProject do
     [
       {:absinthe_generator, github: "MikaAK/absinthe_generator"},
 
-      {:phoenix, "~> 1.6"},
+      {:phoenix, "~> 1.5"},
       {:jason, "~> 1.3"},
       {:ecto, "~> 3.7", optional: true, runtime: false, only: [:dev, :test]},
       {:ecto_shorts, "~> 1.1", optional: true, runtime: false, only: [:dev, :test]}

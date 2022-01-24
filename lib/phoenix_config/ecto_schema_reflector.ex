@@ -5,9 +5,9 @@ defmodule PhoenixConfig.EctoSchemaReflector do
     %AbsintheGenerator.CrudResource{
       app_name: Mix.Project.config[:app] |> to_string |> Macro.camelize,
       resource_name: ecto_module_resource_name(ecto_schema),
-      context_module: ecto_context_module,
-      only: only,
-      except: except,
+      context_module: inspect(ecto_context_module),
+      only: only || [],
+      except: except || [],
       resource_fields: resource_fields
     }
   end

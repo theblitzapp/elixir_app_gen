@@ -17,25 +17,26 @@ defmodule PhoenixConfig.EctoContextGenerator do
 
   defp create_ecto_shorts_crud_functions(schema) do
     schema_module = schema |> inspect |> Macro.camelize |> String.split(".") |> List.last
+    schema_name = Macro.underscore(schema_module)
 
     """
-    def create(params) do
+    def create_#{schema_name}(params) do
         Actions.create(#{schema_module}, params)
       end
 
-      def find(params) do
+      def find_#{schema_name}(params) do
         Actions.find(#{schema_module}, params)
       end
 
-      def all(params #{"\\"}#{"\\"} %{}) do
+      def all_#{schema_name}(params #{"\\"}#{"\\"} %{}) do
         Actions.all(#{schema_module}, params)
       end
 
-      def update(id_or_schema, params) do
+      def update_#{schema_name}(id_or_schema, params) do
         Actions.update(#{schema_module}, id_or_schema, params)
       end
 
-      def delete(id_or_schema) do
+      def delete_#{schema_name}(id_or_schema) do
         Actions.delete(#{schema_module}, id_or_schema)
       end
     """

@@ -22,7 +22,10 @@ defmodule Mix.PhoenixConfigHelpers do
   def get_phoenix_config_files(dirname) do
     directory = dirname || default_config_directory()
 
-    File.ls!(directory)
+    directory
+      |> File.ls!
+      |> Enum.filter(&(Path.extname(&1) === ".exs"))
+      |> Enum.map(&Path.join(directory, &1))
   end
 
   def write_phoenix_config_file(dirname, file_path, contents) do
