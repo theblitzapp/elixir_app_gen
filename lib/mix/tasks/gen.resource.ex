@@ -72,8 +72,8 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
   end
 
   defp create_and_write_resource_from_schema(opts) do
-    from_ecto_schema = Module.safe_concat([opts[:from_ecto_schema]])
-    context = Module.safe_concat([opts[:context]])
+    from_ecto_schema = safe_concat_with_error([opts[:from_ecto_schema]])
+    context = safe_concat_with_error([opts[:context]])
 
     contents = create_config_contents(context, from_ecto_schema, opts[:only], opts[:except])
     file_name = opts[:file_name] || EctoSchemaReflector.ecto_module_resource_name(from_ecto_schema)
@@ -107,7 +107,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
 
       schema_module = hd(extra_args)
       context_module = context_module_from_schema_module(schema_module)
-      ecto_schema = Module.safe_concat(context_app, schema_module)
+      ecto_schema = safe_concat_with_error(context_app, schema_module)
       context_module = ensure_context_module_created(Mix.Phoenix.context_app(), context_module, ecto_schema)
 
       {inspect(context_module), inspect(ecto_schema)}
@@ -117,7 +117,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
   defp ensure_context_module_created(context_app, context_module, ecto_schema) do
     context_app_module = context_app |> to_string |> Macro.camelize
 
-    Module.safe_concat(context_app_module, context_module)
+    safe_concat_with_error(context_app_module, context_module)
 
     rescue
       ArgumentError ->
@@ -130,8 +130,20 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
         if Mix.Generator.create_file(context_module_path, EctoContextGenerator.create_context_module_for_schemas(context_app_module, context_module, [ecto_schema])) do
           Code.compile_file(context_module_path)
 
-          Module.safe_concat(context_app_module, context_module)
+          safe_concat_with_error(context_app_module, context_module)
         end
+  end
+
+  defp safe_concat_with_error(module_a, module_b) do
+    safe_concat_with_error([module_a, module_b])
+  end
+
+  defp safe_concat_with_error(modules) do
+    Module.safe_concat(modules)
+
+    rescue
+      ArgumentError ->
+        Mix.raise("Module #{Enum.join(modules, ".")} cannot be found in your application, please ensure you have the right modules passed in")
   end
 
   defp context_module_from_schema_module(schema_module) do

@@ -28,11 +28,12 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
 
     config_files
       |> Enum.flat_map(&eval_config_file/1)
+      |> List.flatten
       |> AbsintheTypeMerge.maybe_merge_types
       |> add_schema_generation_struct
       |> Enum.map(&{&1, AbsintheGenerator.run(&1)})
       |> Enum.map(fn
-        {_generation_struct, struct_template_tuples} when is_list(struct_template_tuples) ->
+        {_generation_struct, [multi_templates | _] = struct_template_tuples} when is_tuple(multi_templates) ->
           Enum.map(struct_template_tuples, fn {generation_struct_item, template} ->
             AbsintheGenerator.FileWriter.write(generation_struct_item, template)
           end)
@@ -47,7 +48,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
 
     schema_struct = AbsintheGenerator.SchemaBuilder.generate(app_name, generation_structs)
 
-    generation_structs ++ [schema_struct]
+    generation_structs ++ []
   end
 
   defp eval_config_file(file_path) do

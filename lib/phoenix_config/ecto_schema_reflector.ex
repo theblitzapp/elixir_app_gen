@@ -1,9 +1,64 @@
 defmodule PhoenixConfig.EctoSchemaReflector do
-  def to_resource(ecto_context_module, ecto_schema, only, except) do
-    resource_fields = generate_resource_fields(ecto_schema)
+  def schema_relationship_types(ecto_schemas) do
+    schema_fields = Map.new(ecto_schemas, &{&1, resolve_all_relation_schema_fields(&1)})
+
+    Enum.flat_map(schema_fields, fn {schema, deep_relation_fields} ->
+      deep_relation_fields
+        |> Enum.filter(fn {relation_schema, _} -> relation_schema !== schema end)
+        |> Enum.map(fn {relation_schema, {_resource_schema_fields, relation_fields}} ->
+          field_name = module_name(relation_schema)
+
+          build_type(relation_schema, [
+            build_type_object(field_name, relation_fields)
+          ])
+        end)
+    end)
+  end
+
+  defp build_type(schema, type_objects) do
+    %AbsintheGenerator.Type{
+      app_name: app_name(),
+      type_name: module_name(schema),
+      objects: type_objects
+    }
+  end
+
+  defp build_type_object(resource_name, resource_fields) do
+    %AbsintheGenerator.Type.Object{
+      name: resource_name,
+      fields: Enum.map(resource_fields, fn {field_name, field_type} ->
+        %AbsintheGenerator.Type.Object.Field{name: field_name, type: field_type}
+      end)
+    }
+  end
+
+  defp resolve_all_relation_schema_fields(ecto_schema, acc \\ %{}) do
+    relations = Enum.map(
+      ecto_schema.__schema__(:associations),
+      &ecto_schema.__schema__(:association, &1)
+    )
+
+    Enum.reduce(relations, acc, fn (%_{field: field, queryable: relation_schema}, acc) ->
+      if acc[relation_schema] do
+        Map.update!(acc, relation_schema, fn {fields, resource_fields} ->
+          {Enum.uniq([{ecto_schema, field} | fields]), resource_fields}
+        end)
+      else
+        resource_fields = generate_schema_fields(relation_schema) ++ generate_relation_fields(relation_schema)
+
+        acc = Map.put(acc, relation_schema, {[{ecto_schema, field}], resource_fields})
+
+        Map.merge(acc, resolve_all_relation_schema_fields(relation_schema, acc))
+      end
+    end)
+  end
+
+  def to_crud_resource(ecto_context_module, ecto_schema, only, except) do
+    resource_fields = generate_schema_fields(ecto_schema) ++
+      generate_relation_fields(ecto_context_module, ecto_schema)
 
     %AbsintheGenerator.CrudResource{
-      app_name: Mix.Project.config[:app] |> to_string |> Macro.camelize,
+      app_name:  app_name(),
       resource_name: ecto_module_resource_name(ecto_schema),
       context_module: inspect(ecto_context_module),
       only: only || [],
@@ -12,7 +67,33 @@ defmodule PhoenixConfig.EctoSchemaReflector do
     }
   end
 
-  defp generate_resource_fields(ecto_schema) do
+  defp generate_relation_fields(ecto_context_module, ecto_schema) do
+    relations = Enum.map(
+      ecto_schema.__schema__(:associations),
+      &{&1, ecto_schema.__schema__(:association, &1)}
+    )
+
+    Enum.map(relations, fn
+      {
+        field_name,
+        %schema{queryable: queryable}
+      } when schema in [Ecto.Association.BelongsTo, Ecto.Association.HasOne] ->
+        {to_string(field_name), ":#{module_name(queryable)}, #{dataloader_string(ecto_context_module, field_name)}"}
+
+      {field_name, %schema{queryable: queryable}} when schema in [Ecto.Association.Has, Ecto.Association.ManyToMany] ->
+        {Inflex.pluralize(to_string(field_name)), "list_of(non_null(:#{module_name(queryable)})), #{dataloader_string(ecto_context_module, field_name)}"}
+    end)
+  end
+
+  defp dataloader_string(ecto_context_module, field_name) do
+    "dataloader(#{inspect(ecto_context_module)}, :#{field_name})"
+  end
+
+  defp module_name(module) do
+    module |> Module.split |> List.last |> Macro.underscore
+  end
+
+  defp generate_schema_fields(ecto_schema) do
     primary_keys = ecto_schema.__schema__(:primary_key)
     ecto_fields = ecto_schema.__schema__(:fields) -- primary_keys
 
@@ -54,4 +135,6 @@ defmodule PhoenixConfig.EctoSchemaReflector do
       |> List.last
       |> Macro.underscore
   end
+
+  defp app_name, do: Mix.Project.config[:app] |> to_string |> Macro.camelize
 end

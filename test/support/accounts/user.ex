@@ -5,7 +5,7 @@ defmodule PhoenixConfig.Support.Accounts.User do
 
   import Ecto.Changeset, only: [cast: 3, validate_required: 2, update_change: 3, validate_length: 3]
 
-  alias PhoenixConfig.Support.Accounts.User
+  alias PhoenixConfig.Support.Accounts.{User, Role, Team, Label}
 
   @username_min 3
   @username_max 15
@@ -18,6 +18,11 @@ defmodule PhoenixConfig.Support.Accounts.User do
     field :location, :string
     field :gender, :string
     field :birthday, :date
+
+    belongs_to :role, Role
+    belongs_to :team, Team
+
+    many_to_many :labels, Label, join_through: "account_user_labels"
 
     timestamps(type: :utc_datetime_usec)
   end
