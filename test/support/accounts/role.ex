@@ -10,7 +10,7 @@ defmodule PhoenixConfig.Support.Accounts.Role do
   schema "account_roles" do
     field :code, :string
 
-    has_one :user, User
+    has_many :users, User
   end
 
   @required_params [:code]

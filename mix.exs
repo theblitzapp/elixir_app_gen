@@ -25,7 +25,7 @@ defmodule PhoenixConfig.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:absinthe_generator, github: "MikaAK/absinthe_generator"},
+      {:absinthe_generator, path: "/Users/mika/Documents/absinthe_generator"},
 
       {:phoenix, "~> 1.5"},
       {:jason, "~> 1.3"},

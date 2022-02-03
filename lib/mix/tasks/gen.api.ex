@@ -52,7 +52,9 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
   def reduce_config_to_structs(generation_items) do
     generation_items
       |> Enum.reduce([], fn
-        (config_function, acc) when is_function(config_function) -> config_function.(acc)
+        (config_function, acc) when is_function(config_function) ->
+          config_function.(acc)
+
         (generation_item, acc) ->
           case AbsintheGenerator.run(generation_item) do
             [str | _] = template when is_binary(str) ->

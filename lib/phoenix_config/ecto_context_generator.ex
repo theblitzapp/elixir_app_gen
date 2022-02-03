@@ -39,6 +39,10 @@ defmodule PhoenixConfig.EctoContextGenerator do
       def delete_#{schema_name}(id_or_schema) do
         Actions.delete(#{schema_module}, id_or_schema)
       end
+
+      def find_and_update_or_create_#{schema_name}(params, update_params) do
+        Actions.find_and_update(#{schema_module}, params, update_params)
+      end
     """
   end
 

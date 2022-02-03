@@ -23,7 +23,7 @@ defmodule PhoenixConfig do
     [crud_resouce | relation_types]
   end
 
-  def exclude_relation(ecto_schema, relation_key) do
-    &AbsintheTypeMerge.remove_relation(&1, ecto_schema, relation_key)
+  def remove_relations(ecto_schema, relation_key) do
+    &AbsintheTypeMerge.remove_relations(&1, ecto_schema, relation_key)
   end
 end
