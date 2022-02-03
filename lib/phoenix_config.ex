@@ -3,10 +3,11 @@ defmodule PhoenixConfig do
   My Moduledoc
   """
 
-  alias PhoenixConfig.EctoSchemaReflector
+  alias PhoenixConfig.{EctoSchemaReflector, AbsintheTypeMerge}
 
   @type crud_from_schema_opts :: [
-    only: list(:create | :all | :find | :update | :delete)
+    only: list(AbsintheGenerator.CrudResource.crud_type),
+    except: list(AbsintheGenerator.CrudResource.crud_type)
   ]
 
   def moduledoc, do: @moduledoc
@@ -20,5 +21,9 @@ defmodule PhoenixConfig do
     )
 
     [crud_resouce | relation_types]
+  end
+
+  def exclude_relation(ecto_schema, relation_key) do
+    &AbsintheTypeMerge.remove_relation(&1, ecto_schema, relation_key)
   end
 end
