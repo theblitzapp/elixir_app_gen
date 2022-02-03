@@ -9,7 +9,7 @@ defmodule PhoenixConfig.EctoSchemaReflector do
           field_name = module_name(relation_schema)
 
           build_type(relation_schema, [
-            build_type_object(field_name, relation_fields)
+            AbsintheGenerator.CrudResource.type_object(field_name, relation_fields)
           ])
         end)
     end)
@@ -20,15 +20,6 @@ defmodule PhoenixConfig.EctoSchemaReflector do
       app_name: app_name(),
       type_name: module_name(schema),
       objects: type_objects
-    }
-  end
-
-  defp build_type_object(resource_name, resource_fields) do
-    %AbsintheGenerator.Type.Object{
-      name: resource_name,
-      fields: Enum.map(resource_fields, fn {field_name, field_type} ->
-        %AbsintheGenerator.Type.Object.Field{name: field_name, type: field_type}
-      end)
     }
   end
 
@@ -53,21 +44,21 @@ defmodule PhoenixConfig.EctoSchemaReflector do
     end)
   end
 
-  def to_crud_resource(ecto_context_module, ecto_schema, only, except) do
+  def to_crud_resource(ecto_schema, only, except) do
     resource_fields = generate_schema_fields(ecto_schema) ++
-      generate_relation_fields(ecto_context_module, ecto_schema)
+      generate_relation_fields(ecto_schema)
 
     %AbsintheGenerator.CrudResource{
       app_name:  app_name(),
       resource_name: ecto_module_resource_name(ecto_schema),
-      context_module: inspect(ecto_context_module),
+      context_module: inspect(ecto_schema_context(ecto_schema)),
       only: only || [],
       except: except || [],
       resource_fields: resource_fields
     }
   end
 
-  defp generate_relation_fields(ecto_context_module, ecto_schema) do
+  defp generate_relation_fields(ecto_schema) do
     relations = Enum.map(
       ecto_schema.__schema__(:associations),
       &{&1, ecto_schema.__schema__(:association, &1)}
@@ -78,15 +69,22 @@ defmodule PhoenixConfig.EctoSchemaReflector do
         field_name,
         %schema{queryable: queryable}
       } when schema in [Ecto.Association.BelongsTo, Ecto.Association.HasOne] ->
-        {to_string(field_name), ":#{module_name(queryable)}, #{dataloader_string(ecto_context_module, field_name)}"}
+        {to_string(field_name), ":#{module_name(queryable)}", dataloader_string(queryable, field_name)}
 
       {field_name, %schema{queryable: queryable}} when schema in [Ecto.Association.Has, Ecto.Association.ManyToMany] ->
-        {Inflex.pluralize(to_string(field_name)), "list_of(non_null(:#{module_name(queryable)})), #{dataloader_string(ecto_context_module, field_name)}"}
+        {Inflex.pluralize(to_string(field_name)), "list_of(non_null(:#{module_name(queryable)}))", dataloader_string(queryable, field_name)}
     end)
   end
 
-  defp dataloader_string(ecto_context_module, field_name) do
-    "dataloader(#{inspect(ecto_context_module)}, :#{field_name})"
+  def dataloader_string(ecto_schema, field_name) do
+    "dataloader(#{ecto_schema |> ecto_schema_context |> inspect}, :#{field_name})"
+  end
+
+  def ecto_schema_context(ecto_schema) do
+    ecto_schema |> Module.split |> Enum.drop(-1) |> Module.safe_concat
+
+    rescue
+      ArgumentError -> raise "Cannot find context module for #{inspect(ecto_schema)}"
   end
 
   defp module_name(module) do

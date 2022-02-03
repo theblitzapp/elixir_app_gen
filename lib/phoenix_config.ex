@@ -5,12 +5,15 @@ defmodule PhoenixConfig do
 
   alias PhoenixConfig.EctoSchemaReflector
 
+  @type crud_from_schema_opts :: [
+    only: list(:create | :all | :find | :update | :delete)
+  ]
+
   def moduledoc, do: @moduledoc
 
-  def crud_from_schema(ecto_context_module, ecto_schema, opts \\ []) do
+  def crud_from_schema(ecto_schema, opts \\ []) do
     relation_types = EctoSchemaReflector.schema_relationship_types([ecto_schema])
     crud_resouce = EctoSchemaReflector.to_crud_resource(
-      ecto_context_module,
       ecto_schema,
       opts[:only],
       opts[:except]

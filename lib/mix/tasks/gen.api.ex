@@ -15,45 +15,41 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
     PhoenixConfigHelpers.ensure_not_in_umbrella!("phoenix_config.gen.project")
 
     {opts, _extra_args, _} = OptionParser.parse(args,
-      switches: [dirname: :string]
+      switches: [dirname: :string, file_name: :string]
     )
 
-    PhoenixConfigHelpers.ensure_init_run!(opts[:dirname])
-
-    config_files = PhoenixConfigHelpers.get_phoenix_config_files(opts[:dirname])
-
-    if config_files === [] do
-      Mix.raise("No config files found, please make sure you've generated some using `mix phoenix_config.gen.resource`")
-    end
-
-    config_files
-      |> Enum.flat_map(&eval_config_file/1)
-      |> List.flatten
-      |> AbsintheTypeMerge.maybe_merge_types
+    opts[:dirname]
+      |> PhoenixConfigHelpers.get_phoenix_config_file_path(opts[:file_path])
+      |> eval_config_file
       |> add_schema_generation_struct
       |> Enum.map(&{&1, AbsintheGenerator.run(&1)})
-      |> Enum.map(fn
-        {_generation_struct, [multi_templates | _] = struct_template_tuples} when is_tuple(multi_templates) ->
-          Enum.map(struct_template_tuples, fn {generation_struct_item, template} ->
-            AbsintheGenerator.FileWriter.write(generation_struct_item, template)
-          end)
-
-        {generation_struct, template} ->
-          AbsintheGenerator.FileWriter.write(generation_struct, template)
-      end)
+      |> AbsintheTypeMerge.maybe_merge_types
+      |> write_generated_templates
   end
 
   defp add_schema_generation_struct(generation_structs) do
-    app_name = Mix.Project.config()[:app] |> to_string |> Macro.camelize
+    # app_name = Mix.Project.config()[:app] |> to_string |> Macro.camelize
 
-    schema_struct = AbsintheGenerator.SchemaBuilder.generate(app_name, generation_structs)
+    # schema_struct = AbsintheGenerator.SchemaBuilder.generate(app_name, generation_structs)
 
     generation_structs ++ []
   end
 
   defp eval_config_file(file_path) do
     case Code.eval_file(file_path) do
-      {resources, _} -> resources
+      {resources, _} -> List.flatten(resources)
     end
+  end
+
+  defp write_generated_templates(generation_items) do
+    Enum.map(generation_items, fn
+      {_generation_struct, [multi_templates | _] = struct_template_tuples} when is_tuple(multi_templates) ->
+        Enum.map(struct_template_tuples, fn {generation_struct_item, template} ->
+          AbsintheGenerator.FileWriter.write(generation_struct_item, template)
+        end)
+
+      {generation_struct, template} ->
+        AbsintheGenerator.FileWriter.write(generation_struct, template)
+    end)
   end
 end

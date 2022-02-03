@@ -1,5 +1,6 @@
 defmodule Mix.PhoenixConfigHelpers do
-  def default_config_directory, do: "./lib/phoenix_config/"
+  def default_config_directory, do: "./"
+  def default_config_file_name, do: "phoenix_config.exs"
 
   def ensure_not_in_umbrella!(command) do
     if Mix.Project.umbrella?() do
@@ -7,31 +8,21 @@ defmodule Mix.PhoenixConfigHelpers do
     end
   end
 
-  def ensure_init_run!(directory \\ default_config_directory())
+  def get_phoenix_config_file_path(dirname, file_name) do
+    full_path = config_file_full_path(dirname, file_name)
 
-  def ensure_init_run!(nil) do
-    ensure_init_run!(default_config_directory())
-  end
-
-  def ensure_init_run!(directory) do
-    if not File.dir?(directory) do
-      Mix.raise("Must run mix phoenix_config.init before running this command")
+    if File.exists?(full_path) do
+      full_path
+    else
+      Mix.raise("No config file found at #{full_path}, make sure you run phoenix_config.gen.resource")
     end
   end
 
-  def get_phoenix_config_files(dirname) do
-    directory = dirname || default_config_directory()
-
-    directory
-      |> File.ls!
-      |> Enum.filter(&(Path.extname(&1) === ".exs"))
-      |> Enum.map(&Path.join(directory, &1))
+  def write_phoenix_config_file(dirname, file_name, contents) do
+    Mix.Generator.create_file(config_file_full_path(dirname, file_name), contents)
   end
 
-  def write_phoenix_config_file(dirname, file_path, contents) do
-    directory = dirname || default_config_directory()
-    full_path = Path.join(directory, "#{file_path}.exs")
-
-    Mix.Generator.create_file(full_path, contents)
+  def config_file_full_path(dirname, file_name) do
+    Path.join(dirname || default_config_directory(), file_name || default_config_file_name())
   end
 end

@@ -50,56 +50,55 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
       ]
     )
 
-    PhoenixConfigHelpers.ensure_init_run!(opts[:dirname])
-
     cond do
       !opts[:from_ecto_schema] and Enum.empty?(extra_args) ->
         Mix.raise("Must provide a from_ecto_schema or create a schema for mix phoenix_config.gen.resource using the --from-ecto-schema flag")
 
-      !opts[:context] and Enum.empty?(extra_args) ->
-        Mix.raise("Must provide a context or create a schema for mix phoenix_config.gen.resource using the --context flag")
-
-      opts[:from_ecto_schema] && opts[:context] ->
+      opts[:from_ecto_schema] ->
         create_and_write_resource_from_schema(opts)
 
       extra_args ->
-        {context_module, ecto_schema} = create_schema_from_args(extra_args)
+        ecto_schema = create_schema_from_args(extra_args)
 
         opts
-          |> Keyword.merge(from_ecto_schema: ecto_schema, context: context_module)
+          |> Keyword.merge(from_ecto_schema: ecto_schema)
           |> create_and_write_resource_from_schema
     end
   end
 
   defp create_and_write_resource_from_schema(opts) do
     from_ecto_schema = safe_concat_with_error([opts[:from_ecto_schema]])
-    context = safe_concat_with_error([opts[:context]])
 
-    contents = create_config_contents(context, from_ecto_schema, opts[:only], opts[:except])
-    file_name = opts[:file_name] || EctoSchemaReflector.ecto_module_resource_name(from_ecto_schema)
+    contents = create_config_contents(from_ecto_schema, opts[:only], opts[:except])
 
-    PhoenixConfigHelpers.write_phoenix_config_file(opts[:dirname], file_name, contents)
+    PhoenixConfigHelpers.write_phoenix_config_file(opts[:dirname], opts[:file_name], contents)
   end
 
-  defp create_config_contents(context_module, schema_name, nil, nil) do
+  defp create_config_contents(schema_name, nil, nil) do
+    """
+    import PhoenixConfig, only: [crud_from_schema: 1]
+
+    [
+      crud_from_schema(#{inspect(schema_name)})
+    ]
+    """
+  end
+
+  defp create_config_contents(schema_name, only, except) do
     """
     import PhoenixConfig, only: [crud_from_schema: 2]
 
     [
-      crud_from_schema(#{inspect(context_module)}, #{inspect(schema_name)})
+      crud_from_schema(#{inspect(schema_name)}#{build_only(only) <> build_except(except)}
     ]
     """
   end
 
-  defp create_config_contents(context_module, schema_name, only, except) do
-    """
-    import PhoenixConfig, only: [crud_from_schema: 4]
+  defp build_only(nil), do: ""
+  defp build_only(only), do: ", only: #{inspect(only)}"
 
-    [
-      crud_from_schema(#{inspect(context_module)}, #{inspect(schema_name)}, #{inspect(only)}, #{inspect(except)})
-    ]
-    """
-  end
+  defp build_except(nil), do: ""
+  defp build_except(except), do: ", except: #{inspect(except)}"
 
   defp create_schema_from_args(extra_args) do
     with :ok <- Mix.Tasks.Phx.Gen.Schema.run(extra_args) do
@@ -108,9 +107,10 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
       schema_module = hd(extra_args)
       context_module = context_module_from_schema_module(schema_module)
       ecto_schema = safe_concat_with_error(context_app, schema_module)
-      context_module = ensure_context_module_created(Mix.Phoenix.context_app(), context_module, ecto_schema)
 
-      {inspect(context_module), inspect(ecto_schema)}
+      ensure_context_module_created(Mix.Phoenix.context_app(), context_module, ecto_schema)
+
+      inspect(ecto_schema)
     end
   end
 
