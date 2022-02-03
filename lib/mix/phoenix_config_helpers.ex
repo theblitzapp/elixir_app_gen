@@ -1,4 +1,6 @@
 defmodule Mix.PhoenixConfigHelpers do
+  def app_name, do: Mix.Project.config()[:app] |> to_string |> Macro.camelize
+
   def default_config_directory, do: "./"
   def default_config_file_name, do: "phoenix_config.exs"
 

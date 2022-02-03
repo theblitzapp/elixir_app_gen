@@ -20,12 +20,11 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
 
     opts[:dirname]
       |> PhoenixConfigHelpers.get_phoenix_config_file_path(opts[:file_path])
-      |> IO.inspect
       |> eval_config_file
-      |> add_schema_generation_struct
       |> ensure_functions_last_in_list
       |> reduce_config_to_structs
       |> AbsintheTypeMerge.maybe_merge_types
+      |> add_schema_generation_struct
       |> write_generated_templates
   end
 
@@ -35,12 +34,13 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
     end
   end
 
-  defp add_schema_generation_struct(generation_items) do
-    # app_name = Mix.Project.config()[:app] |> to_string |> Macro.camelize
+  defp add_schema_generation_struct(generation_item_tuples) do
+    schema_struct = AbsintheGenerator.SchemaBuilder.generate(
+      PhoenixConfigHelpers.app_name(),
+      Enum.map(generation_item_tuples, fn {generation_struct, _template} -> generation_struct end)
+    )
 
-    # schema_struct = AbsintheGenerator.SchemaBuilder.generate(app_name, generation_structs)
-
-    generation_items ++ []
+    generation_item_tuples ++ [{schema_struct, AbsintheGenerator.run(schema_struct)}]
   end
 
   defp ensure_functions_last_in_list(generation_items) do
@@ -53,7 +53,13 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
     generation_items
       |> Enum.reduce([], fn
         (config_function, acc) when is_function(config_function) -> config_function.(acc)
-        (generation_item, acc) -> [{generation_item, AbsintheGenerator.run(generation_item)} | acc]
+        (generation_item, acc) ->
+          case AbsintheGenerator.run(generation_item) do
+            [str | _] = template when is_binary(str) ->
+              [{generation_item, template} | acc]
+
+            generation_item_children -> generation_item_children ++ acc
+          end
       end)
       |> Enum.reverse
   end
