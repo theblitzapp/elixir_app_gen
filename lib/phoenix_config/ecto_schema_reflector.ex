@@ -104,15 +104,16 @@ defmodule PhoenixConfig.EctoSchemaReflector do
     field_type_map
       |> Map.take(fields)
       |> Enum.map(fn {field_name, field_type} ->
-        {to_string(field_name), inspect(maybe_convert_type(field_type))}
+        {to_string(field_name), to_string(maybe_convert_type(field_type))}
       end)
   end
 
-  defp maybe_convert_type(:utc_datetime_usec), do: :datetime
-  defp maybe_convert_type(:utc_datetime), do: :datetime
-  defp maybe_convert_type(:naive_datetime_usec), do: :datetime
-  defp maybe_convert_type(:naive_datetime), do: :datetime
-  defp maybe_convert_type(:time_usec), do: :datetime
+  defp maybe_convert_type(:utc_datetime_usec), do: ":datetime"
+  defp maybe_convert_type(:utc_datetime), do: ":datetime"
+  defp maybe_convert_type(:naive_datetime_usec), do: ":datetime"
+  defp maybe_convert_type(:naive_datetime), do: ":datetime"
+  defp maybe_convert_type(:time_usec), do: ":datetime"
+  defp maybe_convert_type({:array, type}), do: "list_of(non_null(#{maybe_convert_type(type)}))"
   defp maybe_convert_type(type), do: type
 
   defp split_primary_key_and_fields(primary_keys, ecto_fields) do

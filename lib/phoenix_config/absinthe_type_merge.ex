@@ -21,7 +21,7 @@ defmodule PhoenixConfig.AbsintheTypeMerge do
             %{object | fields: Enum.reject(object.fields, fn field ->
               (not is_nil(field.resolver) and
                 object.name =~ EctoSchemaReflector.ecto_module_resource_name(ecto_schema) and
-                field.name in Enum.map(relation_keys, &to_string/1)) |> IO.inspect
+                field.name in Enum.map(relation_keys, &to_string/1))
             end)}
           end)
         }
