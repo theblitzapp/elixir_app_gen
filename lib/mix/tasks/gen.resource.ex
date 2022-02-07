@@ -68,10 +68,18 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
 
   defp create_and_write_resource_from_schema(opts) do
     from_ecto_schema = safe_concat_with_error([opts[:from_ecto_schema]])
+    config_file_path = PhoenixConfigHelpers.config_file_full_path(opts[:dirname], opts[:file_name])
 
-    contents = create_config_contents(from_ecto_schema, opts[:only], opts[:except])
+    if File.exists?(config_file_path) do
+      contents = create_config_contents(from_ecto_schema, opts[:only], opts[:except])
 
-    PhoenixConfigHelpers.write_phoenix_config_file(opts[:dirname], opts[:file_name], contents)
+      # TODO: Inject this instead of forcing user to do this
+      Mix.shell.info("Make sure to merge the following with your phoenix_config.exs\n\n#{contents}")
+    else
+      contents = create_config_contents(from_ecto_schema, opts[:only], opts[:except])
+
+      PhoenixConfigHelpers.write_phoenix_config_file(opts[:dirname], opts[:file_name], contents)
+    end
   end
 
   defp create_config_contents(schema_name, nil, nil) do
@@ -116,8 +124,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
 
   defp ensure_context_module_created(context_app, context_module, ecto_schema) do
     context_app_module = context_app |> to_string |> Macro.camelize
-
-    safe_concat_with_error(context_app_module, context_module)
+    Module.safe_concat(context_app_module, context_module)
 
     rescue
       ArgumentError ->

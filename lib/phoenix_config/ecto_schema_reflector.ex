@@ -84,7 +84,10 @@ defmodule PhoenixConfig.EctoSchemaReflector do
     ecto_schema |> Module.split |> Enum.drop(-1) |> Module.safe_concat
 
     rescue
-      ArgumentError -> raise "Cannot find context module for #{inspect(ecto_schema)}"
+      ArgumentError ->
+        ecto_context = ecto_schema |> Module.split |> Enum.drop(-1) |> Enum.join(".")
+
+        raise "Cannot find context module for #{inspect(ecto_context)}"
   end
 
   defp module_name(module) do
