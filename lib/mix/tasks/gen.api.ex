@@ -40,6 +40,8 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
       Enum.map(generation_item_tuples, fn {generation_struct, _template} -> generation_struct end)
     )
 
+    generation_item_tuples = Enum.sort_by(generation_item_tuples, fn {%struct{}, _} -> struct end)
+
     generation_item_tuples ++ [{schema_struct, AbsintheGenerator.run(schema_struct)}]
   end
 
