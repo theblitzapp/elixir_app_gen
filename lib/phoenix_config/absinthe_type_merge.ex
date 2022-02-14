@@ -6,13 +6,15 @@ defmodule PhoenixConfig.AbsintheTypeMerge do
       |> Enum.group_by(&Map.get(elem(&1, 0), :type_name))
       |> Map.pop(nil)
 
-    resolve_duplicate_types(duplicate_type_structs_map) ++ non_type_structs
+    duplicate_type_structs_map
+      |> resolve_duplicate_types
+      |> Enum.concat(non_type_structs)
   end
 
   defp resolve_duplicate_types(duplicate_type_structs_map) do
-    Enum.map(duplicate_type_structs_map, fn
+    Enum.flat_map(duplicate_type_structs_map, fn
       {_, type_struct_tuple} when length(type_struct_tuple) <= 1 -> type_struct_tuple
-      {_, type_struct_tuples} -> merge_types(type_struct_tuples)
+      {_, type_struct_tuples} -> [merge_types(type_struct_tuples)]
     end)
   end
 

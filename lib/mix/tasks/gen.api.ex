@@ -2,7 +2,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
   use Mix.Task
 
   alias Mix.PhoenixConfigHelpers
-  alias PhoenixConfig.AbsintheTypeMerge
+  alias PhoenixConfig.{AbsintheTypeMerge, AbsintheSchemaBuilder}
 
   @shortdoc "Utilizes all the config files and generates a GraphQL API"
   @moduledoc """
@@ -24,7 +24,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
       |> ensure_functions_last_in_list
       |> reduce_config_to_structs
       |> AbsintheTypeMerge.maybe_merge_types
-      |> add_schema_generation_struct
+      |> AbsintheSchemaBuilder.generate
       |> write_generated_templates
   end
 
@@ -34,16 +34,6 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
     end
   end
 
-  defp add_schema_generation_struct(generation_item_tuples) do
-    schema_struct = AbsintheGenerator.SchemaBuilder.generate(
-      PhoenixConfigHelpers.app_name(),
-      Enum.map(generation_item_tuples, fn {generation_struct, _template} -> generation_struct end)
-    )
-
-    generation_item_tuples = Enum.sort_by(generation_item_tuples, fn {%struct{}, _} -> struct end)
-
-    generation_item_tuples ++ [{schema_struct, AbsintheGenerator.run(schema_struct)}]
-  end
 
   defp ensure_functions_last_in_list(generation_items) do
     {functions, generation_items} = Enum.split_with(generation_items, &is_function/1)

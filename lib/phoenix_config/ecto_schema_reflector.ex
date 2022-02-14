@@ -87,7 +87,9 @@ defmodule PhoenixConfig.EctoSchemaReflector do
       ArgumentError ->
         ecto_context = ecto_schema |> Module.split |> Enum.drop(-1) |> Enum.join(".")
 
-        raise "Cannot find context module for #{inspect(ecto_context)}"
+        raise IO.ANSI.red() <>
+              "Context module #{ecto_context} for schema #{inspect(ecto_schema)} doesn't exist" <>
+              IO.ANSI.reset()
   end
 
   defp module_name(module) do
@@ -106,6 +108,10 @@ defmodule PhoenixConfig.EctoSchemaReflector do
   defp field_resources(field_type_map, fields) do
     field_type_map
       |> Map.take(fields)
+      |> Enum.reject(fn
+        {_, {:parameterized, Ecto.Enum, _}} -> true
+        _ -> false
+      end)
       |> Enum.map(fn {field_name, field_type} ->
         {to_string(field_name), to_string(maybe_convert_type(field_type))}
       end)
@@ -116,7 +122,7 @@ defmodule PhoenixConfig.EctoSchemaReflector do
   defp maybe_convert_type(:naive_datetime_usec), do: ":datetime"
   defp maybe_convert_type(:naive_datetime), do: ":datetime"
   defp maybe_convert_type(:time_usec), do: ":datetime"
-  defp maybe_convert_type({:array, type}), do: "list_of(non_null(#{maybe_convert_type(type)}))"
+  defp maybe_convert_type({:array, type}), do: "list_of(non_null(:#{maybe_convert_type(type)}))"
   defp maybe_convert_type(type), do: type
 
   defp split_primary_key_and_fields(primary_keys, ecto_fields) do
