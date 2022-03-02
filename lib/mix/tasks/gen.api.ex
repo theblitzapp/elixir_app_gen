@@ -15,7 +15,12 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
     PhoenixConfigHelpers.ensure_not_in_umbrella!("phoenix_config.gen.project")
 
     {opts, _extra_args, _} = OptionParser.parse(args,
-      switches: [dirname: :string, file_name: :string]
+      switches: [
+        dirname: :string,
+        file_name: :string,
+        force: :boolean,
+        quiet: :boolean
+      ]
     )
 
     opts[:dirname]
@@ -25,7 +30,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
       |> reduce_config_to_structs
       |> AbsintheTypeMerge.maybe_merge_types
       |> AbsintheSchemaBuilder.generate
-      |> write_generated_templates
+      |> write_generated_templates(Keyword.take(opts, [:force, :quiet]))
   end
 
   defp eval_config_file(file_path) do
@@ -58,15 +63,15 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
       |> Enum.reverse
   end
 
-  defp write_generated_templates(generation_items) do
+  defp write_generated_templates(generation_items, opts) do
     Enum.map(generation_items, fn
       {_generation_struct, [multi_templates | _] = struct_template_tuples} when is_tuple(multi_templates) ->
         Enum.map(struct_template_tuples, fn {generation_struct_item, template} ->
-          AbsintheGenerator.FileWriter.write(generation_struct_item, template)
+          AbsintheGenerator.FileWriter.write(generation_struct_item, template, opts)
         end)
 
       {generation_struct, template} ->
-        AbsintheGenerator.FileWriter.write(generation_struct, template)
+        AbsintheGenerator.FileWriter.write(generation_struct, template, opts)
     end)
   end
 end
