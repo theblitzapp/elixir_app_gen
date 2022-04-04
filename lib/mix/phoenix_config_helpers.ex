@@ -20,11 +20,25 @@ defmodule Mix.PhoenixConfigHelpers do
     end
   end
 
-  def write_phoenix_config_file(dirname, file_name, contents) do
-    Mix.Generator.create_file(config_file_full_path(dirname, file_name), contents)
+  def write_phoenix_config_file(dirname, file_name, contents, opts \\ []) do
+    Mix.Generator.create_file(
+      config_file_full_path(dirname, file_name),
+      contents,
+      opts
+    )
   end
 
   def config_file_full_path(dirname, file_name) do
     Path.join(dirname || default_config_directory(), file_name || default_config_file_name())
+  end
+
+  def string_to_module(module_string) do
+    Module.safe_concat([module_string])
+
+    rescue
+      ArgumentError ->
+        raise IO.ANSI.red() <>
+              "Module #{module_string} doesn't exist" <>
+              IO.ANSI.reset()
   end
 end

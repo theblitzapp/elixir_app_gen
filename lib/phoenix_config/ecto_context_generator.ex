@@ -1,10 +1,31 @@
 defmodule PhoenixConfig.EctoContextGenerator do
+  def context_path(context_module) do
+    context_app_module = Mix.Phoenix.context_app()
+      |> to_string
+      |> Macro.camelize
+
+    context_module = String.replace(context_module, ~r/^#{context_app_module}\./i, "")
+
+    Mix.Phoenix.context_lib_path(Mix.Phoenix.context_app(), "#{Macro.underscore(context_module)}.ex")
+  end
+
+  def context_module(schema) when is_atom(schema) do
+    context_module(inspect(schema))
+  end
+
+  def context_module(schema) when is_binary(schema) do
+    schema
+      |> String.split(".")
+      |> Enum.drop(-1)
+      |> Enum.join(".")
+  end
+
   def create_context_module_for_schemas(context_app, context_module, schemas) do
     context_app_string = to_module_string(context_app)
     context_module_string = to_module_string(context_module)
     full_context_module = "#{context_app_string}.#{context_module_string}"
 
-    """
+    Code.format_string!("""
     defmodule #{full_context_module} do
       alias EctoShorts.Actions
 
@@ -12,7 +33,7 @@ defmodule PhoenixConfig.EctoContextGenerator do
 
       #{schemas |> Enum.map(&create_ecto_shorts_crud_functions/1) |> Enum.join("\n")}
     end
-    """
+    """)
   end
 
   defp create_ecto_shorts_crud_functions(schema) do

@@ -3,7 +3,7 @@ defmodule PhoenixConfig do
   My Moduledoc
   """
 
-  alias PhoenixConfig.{EctoSchemaReflector, AbsintheTypeMerge}
+  alias PhoenixConfig.{EctoSchemaReflector, AbsintheTypeMerge, EctoArgumentsReflector}
 
   @type crud_from_schema_opts :: [
     only: list(AbsintheGenerator.CrudResource.crud_type),
@@ -14,11 +14,12 @@ defmodule PhoenixConfig do
 
   def crud_from_schema(ecto_schema, opts \\ []) do
     relation_types = EctoSchemaReflector.schema_relationship_types([ecto_schema])
-    crud_resouce = EctoSchemaReflector.to_crud_resource(
-      ecto_schema,
-      opts[:only],
-      opts[:except]
-    )
+    crud_resouce = ecto_schema
+      |> EctoSchemaReflector.to_crud_resource(
+        opts[:only],
+        opts[:except]
+      )
+      |> EctoArgumentsReflector.build_crud_resource_args(opts[:args])
 
     [crud_resouce | relation_types]
   end

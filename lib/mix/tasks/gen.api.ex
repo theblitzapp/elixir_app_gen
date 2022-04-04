@@ -12,7 +12,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
   """
 
   def run(args) do
-    PhoenixConfigHelpers.ensure_not_in_umbrella!("phoenix_config.gen.project")
+    PhoenixConfigHelpers.ensure_not_in_umbrella!("phoenix_config.gen.api")
 
     {opts, _extra_args, _} = OptionParser.parse(args,
       switches: [
@@ -24,7 +24,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
     )
 
     opts[:dirname]
-      |> PhoenixConfigHelpers.get_phoenix_config_file_path(opts[:file_path])
+      |> PhoenixConfigHelpers.get_phoenix_config_file_path(opts[:file_name])
       |> eval_config_file
       |> ensure_functions_last_in_list
       |> reduce_config_to_structs
@@ -38,7 +38,6 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
       {resources, _} -> List.flatten(resources)
     end
   end
-
 
   defp ensure_functions_last_in_list(generation_items) do
     {functions, generation_items} = Enum.split_with(generation_items, &is_function/1)
