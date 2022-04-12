@@ -26,31 +26,47 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
     opts[:dirname]
       |> PhoenixConfigHelpers.get_phoenix_config_file_path(opts[:file_name])
       |> eval_config_file
-      |> ensure_functions_last_in_list
-      |> reduce_config_to_structs
+      |> expand_crud_types
+      |> pre_merge_types
+      |> run_config_functions
       |> AbsintheTypeMerge.maybe_merge_types
+      |> generate_templates
       |> AbsintheSchemaBuilder.generate
       |> write_generated_templates(Keyword.take(opts, [:force, :quiet]))
   end
 
+  defp pre_merge_types(generation_items) do
+    {functions, generation_structs} = Enum.split_with(generation_items, &is_function/1)
+
+    AbsintheTypeMerge.maybe_merge_types(generation_structs) ++ functions
+  end
+
+  defp expand_crud_types(generation_items) do
+    Enum.flat_map(generation_items, fn
+      %AbsintheGenerator.CrudResource{} = generation_item ->
+        generation_item |> AbsintheGenerator.CrudResource.run |> Enum.map(&elem(&1, 0))
+
+      generation_item -> [generation_item]
+    end)
+  end
+
   defp eval_config_file(file_path) do
-    case Code.eval_file(file_path) do
-      {resources, _} -> List.flatten(resources)
-    end
+    {resources, _} = Code.eval_file(file_path)
+
+    List.flatten(resources)
   end
 
-  defp ensure_functions_last_in_list(generation_items) do
-    {functions, generation_items} = Enum.split_with(generation_items, &is_function/1)
+  defp run_config_functions(generation_items) do
+    {config_functions, generation_structs} = Enum.split_with(generation_items, &is_function/1)
 
-    generation_items ++ functions
+    Enum.reduce(config_functions, generation_structs, fn func, items_acc ->
+      func.(items_acc)
+    end)
   end
 
-  def reduce_config_to_structs(generation_items) do
-    generation_items
+  defp generate_templates(generation_structs) do
+    generation_structs
       |> Enum.reduce([], fn
-        (config_function, acc) when is_function(config_function) ->
-          config_function.(acc)
-
         (generation_item, acc) ->
           case AbsintheGenerator.run(generation_item) do
             [str | _] = template when is_binary(str) ->

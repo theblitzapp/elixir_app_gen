@@ -41,7 +41,7 @@ defmodule PhoenixConfig.EctoContextGenerator do
     schema_name = Macro.underscore(schema_module)
 
     """
-    def create_#{schema_name}(params) do
+      def create_#{schema_name}(params) do
         Actions.create(#{schema_module}, params)
       end
 
@@ -49,7 +49,7 @@ defmodule PhoenixConfig.EctoContextGenerator do
         Actions.find(#{schema_module}, params)
       end
 
-      def all_#{schema_name}(params #{"\\"}#{"\\"} %{}) do
+      def all_#{Inflex.pluralize(to_string(schema_name))}(params #{"\\"}#{"\\"} %{}) do
         Actions.all(#{schema_module}, params)
       end
 

@@ -4,7 +4,7 @@ defmodule PhoenixConfig.EctoSchemaReflector do
 
     Enum.flat_map(schema_fields, fn {schema, deep_relation_fields} ->
       deep_relation_fields
-        |> Enum.filter(fn {relation_schema, _} -> relation_schema !== schema end)
+        |> Enum.reject(fn {relation_schema, _} -> relation_schema === schema end)
         |> Enum.map(fn {relation_schema, {_resource_schema_fields, relation_fields}} ->
           field_name = module_name(relation_schema)
 

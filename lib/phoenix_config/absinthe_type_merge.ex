@@ -3,7 +3,7 @@ defmodule PhoenixConfig.AbsintheTypeMerge do
 
   def maybe_merge_types(absinthe_generator_structs) do
     {non_type_structs, duplicate_type_structs_map} = absinthe_generator_structs
-      |> Enum.group_by(&Map.get(elem(&1, 0), :type_name))
+      |> Enum.group_by(&Map.get(&1, :type_name))
       |> Map.pop(nil)
 
     duplicate_type_structs_map
@@ -13,22 +13,22 @@ defmodule PhoenixConfig.AbsintheTypeMerge do
 
   defp resolve_duplicate_types(duplicate_type_structs_map) do
     Enum.flat_map(duplicate_type_structs_map, fn
-      {_, type_struct_tuple} when length(type_struct_tuple) <= 1 -> type_struct_tuple
-      {_, type_struct_tuples} -> [merge_types(type_struct_tuples)]
+      {_dup_key, type_struct_tuple} when length(type_struct_tuple) <= 1 -> type_struct_tuple
+      {_dup_key, type_struct_tuples} -> [merge_types(type_struct_tuples)]
     end)
   end
 
   defp merge_types(type_structs) do
-    {merged_type_struct, _} = Enum.reduce(
+    merged_type_struct = Enum.reduce(
       type_structs,
-      fn {type_struct, _}, {acc_type_struct, template} ->
-        {%{acc_type_struct |
+      fn type_struct, acc_type_struct ->
+        %{acc_type_struct |
           enums: merge_enum_objects(acc_type_struct.enums, type_struct.enums),
           objects: merge_type_objects(acc_type_struct.objects, type_struct.objects)
-        }, template}
+        }
     end)
 
-    {merged_type_struct, AbsintheGenerator.run(merged_type_struct)}
+    merged_type_struct
   end
 
   defp merge_type_objects(type_objects, duplicate_type_objects) do
@@ -55,7 +55,7 @@ defmodule PhoenixConfig.AbsintheTypeMerge do
 
   def remove_relations(absinthe_generator_structs, ecto_struct, relation_keys) do
     Enum.map(absinthe_generator_structs, fn
-      {%AbsintheGenerator.Type{} = type, _} ->
+      %AbsintheGenerator.Type{} = type ->
         type = %{type |
           objects: Enum.map(type.objects, fn object ->
             %{object | fields: Enum.reject(object.fields, fn field ->
@@ -66,7 +66,7 @@ defmodule PhoenixConfig.AbsintheTypeMerge do
           end)
         }
 
-        {type, AbsintheGenerator.run(type)}
+        type
 
       field -> field
     end)
