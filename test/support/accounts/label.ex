@@ -7,7 +7,7 @@ defmodule PhoenixConfig.Support.Accounts.Label do
 
   alias PhoenixConfig.Support.Accounts.Label
 
-  schema "account_roles" do
+  schema "account_labels" do
     field :label, :string
   end
 

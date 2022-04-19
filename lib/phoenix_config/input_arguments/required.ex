@@ -20,7 +20,7 @@ defmodule PhoenixConfig.InputArguments.Required do
       |> Utils.update_absinthe_schema_mutations_and_queries(
         ecto_schema,
         &update_mutation_fields(ecto_schema, crud_options, &1),
-        &update_query_fields(ecto_schema, crud_options, &1)
+        &update_query_fields(crud_options, &1)
       )
   end
 
@@ -37,7 +37,7 @@ defmodule PhoenixConfig.InputArguments.Required do
     end
   end
 
-  defp update_query_fields(ecto_schema, crud_options, %AbsintheGenerator.Schema.Field{
+  defp update_query_fields(crud_options, %AbsintheGenerator.Schema.Field{
     resolver_module_function: resolver_function,
     arguments: arguments,
   } = field) do
@@ -159,7 +159,7 @@ defmodule PhoenixConfig.InputArguments.Required do
       %AbsintheGenerator.Query{query_name: ^schema_module_name, queries: queries} ->
         all_schema_fields_in_args?(queries, crud_fields_in_opts)
 
-      generator_struct -> true
+      _generator_struct -> true
     end)
   end
 

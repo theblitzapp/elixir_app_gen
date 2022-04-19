@@ -56,7 +56,7 @@ defmodule PhoenixConfig.AbsintheTypeMerge do
   def remove_relations(absinthe_generator_structs, ecto_struct, relation_keys) do
     Enum.map(absinthe_generator_structs, fn
       %AbsintheGenerator.Type{} = type ->
-        type = %{type |
+        %{type |
           objects: Enum.map(type.objects, fn object ->
             %{object | fields: Enum.reject(object.fields, fn field ->
               (not is_nil(field.resolver) and
@@ -65,8 +65,6 @@ defmodule PhoenixConfig.AbsintheTypeMerge do
             end)}
           end)
         }
-
-        type
 
       field -> field
     end)

@@ -2,7 +2,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
   use Mix.Task
 
   alias Mix.PhoenixConfigHelpers
-  alias PhoenixConfig.{EctoSchemaReflector, EctoContextGenerator}
+  alias PhoenixConfig.EctoContextGenerator
 
   @shortdoc "Creates a resource file that will be used to configure absinthe routes and can create schemas"
   @moduledoc """

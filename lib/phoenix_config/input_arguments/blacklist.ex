@@ -2,19 +2,16 @@ defmodule PhoenixConfig.InputArguments.Blacklist do
   alias PhoenixConfig.InputArguments.Utils
 
   def run_option(blacklist_opts, absinthe_generator_structs, ecto_schema) do
-    Enum.reduce(blacklist_opts, absinthe_generator_structs, fn
-      {crud_action, blacklist_fields}, generator_structs_acc ->
-        generator_structs_acc
-          |> Utils.update_absinthe_schema_type_struct(
-            ecto_schema,
-            &blacklist_input_type_fields(&1, ecto_schema, blacklist_opts)
-          )
-          |> Utils.update_absinthe_schema_mutations_and_queries(
-            ecto_schema,
-            &(&1),
-            &blacklist_query_arguments(&1, blacklist_opts)
-          )
-    end)
+    absinthe_generator_structs
+      |> Utils.update_absinthe_schema_type_struct(
+        ecto_schema,
+        &blacklist_input_type_fields(&1, ecto_schema, blacklist_opts)
+      )
+      |> Utils.update_absinthe_schema_mutations_and_queries(
+        ecto_schema,
+        &(&1),
+        &blacklist_query_arguments(&1, blacklist_opts)
+      )
   end
 
   defp blacklist_input_type_fields(%AbsintheGenerator.Type{} = type_struct, ecto_schema, blacklist_fields) do
@@ -48,7 +45,6 @@ defmodule PhoenixConfig.InputArguments.Blacklist do
 
   defp blacklist_query_arguments(
     %AbsintheGenerator.Schema.Field{
-      arguments: arguments,
       resolver_module_function: resolver_func
     } = schema_field,
     blacklist_opts

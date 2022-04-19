@@ -1,4 +1,6 @@
 defmodule PhoenixConfig.InputArguments.Utils do
+  require Logger
+
   def crud_fields_from_opts(crud_options) do
     crud_options
       |> Keyword.values

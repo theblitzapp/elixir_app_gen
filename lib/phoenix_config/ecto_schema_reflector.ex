@@ -1,4 +1,6 @@
 defmodule PhoenixConfig.EctoSchemaReflector do
+  alias PhoenixConfig.{EctoUtils, AbsintheUtils}
+
   def schema_relationship_types(ecto_schemas) do
     schema_fields = Map.new(ecto_schemas, &{&1, resolve_all_relation_schema_fields(&1)})
 
@@ -25,8 +27,8 @@ defmodule PhoenixConfig.EctoSchemaReflector do
 
   defp resolve_all_relation_schema_fields(ecto_schema, acc \\ %{}) do
     relations = Enum.map(
-      ecto_schema.__schema__(:associations),
-      &ecto_schema.__schema__(:association, &1)
+      EctoUtils.schema_associations(ecto_schema),
+      &EctoUtils.schema_association(ecto_schema, &1)
     )
 
     Enum.reduce(relations, acc, fn (%_{field: field, queryable: relation_schema}, acc) ->
@@ -60,8 +62,8 @@ defmodule PhoenixConfig.EctoSchemaReflector do
 
   defp generate_relation_fields(ecto_schema) do
     relations = Enum.map(
-      ecto_schema.__schema__(:associations),
-      &{&1, ecto_schema.__schema__(:association, &1)}
+      EctoUtils.schema_associations(ecto_schema),
+      &{&1, EctoUtils.schema_association(ecto_schema, &1)}
     )
 
     Enum.map(relations, fn
@@ -97,12 +99,12 @@ defmodule PhoenixConfig.EctoSchemaReflector do
   end
 
   defp generate_schema_fields(ecto_schema) do
-    primary_keys = ecto_schema.__schema__(:primary_key)
-    ecto_fields = ecto_schema.__schema__(:fields) -- primary_keys
+    primary_keys = EctoUtils.schema_primary_key(ecto_schema)
+    ecto_fields = EctoUtils.schema_fields(ecto_schema) -- primary_keys
 
     {primary_key, ecto_fields} = split_primary_key_and_fields(primary_keys, ecto_fields)
 
-    [{to_string(primary_key), ":id"} | field_resources(ecto_schema.__changeset__, ecto_fields)]
+    [{to_string(primary_key), ":id"} | field_resources(ecto_schema.__changeset__(), ecto_fields)]
   end
 
   defp field_resources(field_type_map, fields) do
@@ -113,17 +115,9 @@ defmodule PhoenixConfig.EctoSchemaReflector do
         _ -> false
       end)
       |> Enum.map(fn {field_name, field_type} ->
-        {to_string(field_name), to_string(maybe_convert_type(field_type))}
+        {to_string(field_name), to_string(AbsintheUtils.normalize_ecto_type(field_type))}
       end)
   end
-
-  defp maybe_convert_type(:utc_datetime_usec), do: ":datetime"
-  defp maybe_convert_type(:utc_datetime), do: ":datetime"
-  defp maybe_convert_type(:naive_datetime_usec), do: ":datetime"
-  defp maybe_convert_type(:naive_datetime), do: ":datetime"
-  defp maybe_convert_type(:time_usec), do: ":datetime"
-  defp maybe_convert_type({:array, type}), do: "list_of(non_null(:#{maybe_convert_type(type)}))"
-  defp maybe_convert_type(type), do: type
 
   defp split_primary_key_and_fields(primary_keys, ecto_fields) do
     if length(primary_keys) > 1 do
@@ -138,8 +132,7 @@ defmodule PhoenixConfig.EctoSchemaReflector do
 
   def ecto_module_resource_name(ecto_context_module) do
     ecto_context_module
-      |> to_string
-      |> String.split(".")
+      |> Module.split
       |> List.last
       |> Macro.underscore
   end

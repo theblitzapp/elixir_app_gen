@@ -3,6 +3,10 @@ defmodule PhoenixConfig.InputArguments do
 
   alias PhoenixConfig.InputArguments
 
+  @arg_names [:blacklist, :required, :blacklist_non_required?, :relation_inputs]
+
+  def arg_names, do: @arg_names
+
   def change_crud_input_args(absinthe_generator_structs, ecto_schema, input_args_opts) do
     crud_options = input_args_opts
       |> collect_args_by_name
@@ -74,11 +78,11 @@ defmodule PhoenixConfig.InputArguments do
   end
 
   defp reduce_crud_options(
-    {:relation_inputs, required_fields},
+    {:relation_inputs, relation_inputs},
     ecto_schema,
-    crud_options,
+    _crud_options,
     absinthe_generator_structs
   ) do
-    absinthe_generator_structs
+    InputArguments.RelationInputs.run_option(relation_inputs, ecto_schema, absinthe_generator_structs)
   end
 end
