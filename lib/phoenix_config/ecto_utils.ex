@@ -1,4 +1,8 @@
 defmodule PhoenixConfig.EctoUtils do
+  @moduledoc false
+
+  require Logger
+
   def schema_primary_key(ecto_schema) do
     ecto_schema.__schema__(:primary_key)
   end
@@ -18,7 +22,10 @@ defmodule PhoenixConfig.EctoUtils do
   def schema_association_module(ecto_schema, relation_name) do
     case schema_association(ecto_schema, relation_name) do
       %{queryable: queryable} -> queryable
-      _ -> nil
+      _ ->
+        raise IO.ANSI.red() <>
+              "#{relation_name} doesn't exist on #{inspect ecto_schema}, check your config for this key" <>
+              IO.ANSI.reset()
     end
   end
 
@@ -39,5 +46,16 @@ defmodule PhoenixConfig.EctoUtils do
       |> MapSet.new
       |> MapSet.intersection(MapSet.new(fields_b))
       |> MapSet.to_list
+  end
+
+  def schema_relationship_list?(ecto_schema, relation_name) do
+    case schema_association(ecto_schema, relation_name) do
+      %{cardinality: :one} -> false
+      %{cardinality: :many} -> true
+      assication_record ->
+        Logger.error("[PhoenixConfig.EctoUtils] Error checking if schema #{ecto_schema} relationship #{relation_name} is a list\n#{inspect assication_record}")
+
+        false
+    end
   end
 end

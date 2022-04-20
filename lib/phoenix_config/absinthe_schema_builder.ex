@@ -1,4 +1,6 @@
 defmodule PhoenixConfig.AbsintheSchemaBuilder do
+  @moduledoc false
+
   alias Mix.PhoenixConfigHelpers
 
   @custom_types_regex ~r/\b(datetime|naive_datetime|date|time|decimal)\b/

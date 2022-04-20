@@ -1,4 +1,6 @@
 defmodule PhoenixConfig.EctoContextGenerator do
+  @moduledoc false
+
   def context_path(context_module) do
     context_app_module = Mix.Phoenix.context_app()
       |> to_string

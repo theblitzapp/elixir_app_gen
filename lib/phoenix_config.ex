@@ -1,6 +1,6 @@
 defmodule PhoenixConfig do
   @moduledoc """
-  My Moduledoc
+  #{File.read!("./README.md")}
   """
 
   alias PhoenixConfig.{AbsintheTypeMerge, EctoSchemaReflector, InputArguments}

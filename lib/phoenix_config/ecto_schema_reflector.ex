@@ -1,4 +1,6 @@
 defmodule PhoenixConfig.EctoSchemaReflector do
+  @moduledoc false
+
   alias PhoenixConfig.{EctoUtils, AbsintheUtils}
 
   def schema_relationship_types(ecto_schemas) do

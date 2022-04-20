@@ -117,7 +117,7 @@ defmodule PhoenixConfig.InputArguments.RelationInputs do
           )
           |> Map.update!(
             :objects,
-            &add_input_type_to_parent(&1, type_name, relation_name)
+            &add_input_type_to_parent(&1, type_name, current_schema, relation_name)
           )
     end)
   end
@@ -142,7 +142,7 @@ defmodule PhoenixConfig.InputArguments.RelationInputs do
           )
           |> Map.update!(
             :objects,
-            &add_input_type_to_parent(&1, type_name, relation_name)
+            &add_input_type_to_parent(&1, type_name, current_schema, relation_name)
           )
     end)
   end
@@ -213,7 +213,7 @@ defmodule PhoenixConfig.InputArguments.RelationInputs do
     EctoUtils.schema_fields(ecto_schema) -- blacklist_types
   end
 
-  def add_input_type_to_parent(type_object_structs, type_name, relation_name) do
+  def add_input_type_to_parent(type_object_structs, type_name, ecto_schema, relation_name) do
     parent_object_type_name = String.replace(type_name, "_#{relation_name}", "")
 
     Enum.map(type_object_structs, fn
@@ -221,12 +221,20 @@ defmodule PhoenixConfig.InputArguments.RelationInputs do
         Map.update!(object_struct, :fields, fn fields ->
           fields ++ [%AbsintheGenerator.Type.Object.Field{
             name: to_string(relation_name),
-            type: type_name
+            type: ecto_schema_relational_field_type(type_name, ecto_schema, relation_name)
           }]
         end)
 
       type_struct -> type_struct
     end)
+  end
+
+  defp ecto_schema_relational_field_type(type_name, ecto_schema, relation_name) do
+    if EctoUtils.schema_relationship_list?(ecto_schema, relation_name) do
+      "list_of(non_null(#{AbsintheGenerator.Type.maybe_string_atomize_type(type_name)}))"
+    else
+      type_name
+    end
   end
 
   defp arg_opts?(args) do

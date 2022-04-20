@@ -1,4 +1,6 @@
 defmodule PhoenixConfig.InputArguments do
+  @moduledoc false
+
   require Logger
 
   alias PhoenixConfig.InputArguments

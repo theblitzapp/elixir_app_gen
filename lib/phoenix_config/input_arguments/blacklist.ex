@@ -1,4 +1,6 @@
 defmodule PhoenixConfig.InputArguments.Blacklist do
+  @moduledoc false
+
   alias PhoenixConfig.InputArguments.Utils
 
   def run_option(blacklist_opts, absinthe_generator_structs, ecto_schema) do
