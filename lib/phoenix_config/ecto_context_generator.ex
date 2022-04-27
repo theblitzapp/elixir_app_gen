@@ -69,7 +69,7 @@ defmodule PhoenixConfig.EctoContextGenerator do
     """
   end
 
-  defp to_module_string(any) do
+  def to_module_string(any) do
     any |> to_string |> Macro.camelize
   end
 end

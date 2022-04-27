@@ -24,4 +24,3 @@ phoenix_config-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
-phoenix_config.exs

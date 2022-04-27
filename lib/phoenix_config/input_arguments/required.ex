@@ -73,7 +73,11 @@ defmodule PhoenixConfig.InputArguments.Required do
       {nil, _} ->
         module_name = Utils.ecto_schema_module_underscore_name(ecto_schema)
 
-        raise "Somehow got nil when looking for #{module_name}_input for required arg"
+        raise to_string(IO.ANSI.format([
+          "Somehow got nil when looking for ", :bright,  "#{module_name}_input", :reset,
+          :red, " for ", :bright, "required ", :reset,
+          :red, "arg"
+        ], true))
 
       {[input_type], other_objects} ->
         new_input_types = generate_required_crud_input_types(input_type, required_opts, ecto_schema, crud_options)

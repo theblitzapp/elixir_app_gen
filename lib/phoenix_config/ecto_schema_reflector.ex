@@ -91,9 +91,11 @@ defmodule PhoenixConfig.EctoSchemaReflector do
       ArgumentError ->
         ecto_context = ecto_schema |> Module.split |> Enum.drop(-1) |> Enum.join(".")
 
-        raise IO.ANSI.red() <>
-              "Context module #{ecto_context} for schema #{inspect(ecto_schema)} doesn't exist" <>
-              IO.ANSI.reset()
+    raise to_string(IO.ANSI.format([
+      :red, "Context module ", :bright, inspect(ecto_context), :reset,
+      :red, " for schema ", :bright, inspect(ecto_schema), :reset,
+      :red, " doesn't exist"
+    ], true))
   end
 
   defp module_name(module) do
@@ -112,12 +114,12 @@ defmodule PhoenixConfig.EctoSchemaReflector do
   defp field_resources(field_type_map, fields) do
     field_type_map
       |> Map.take(fields)
-      |> Enum.reject(fn
-        {_, {:parameterized, Ecto.Enum, _}} -> true
-        _ -> false
-      end)
-      |> Enum.map(fn {field_name, field_type} ->
-        {to_string(field_name), to_string(AbsintheUtils.normalize_ecto_type(field_type))}
+      |> Enum.map(fn
+        # This is a temporary hack, instead we should generate enum types
+        {field_name, {:parameterized, Ecto.Enum, _}} -> {to_string(field_name), "string"}
+
+        {field_name, field_type} ->
+          {to_string(field_name), to_string(AbsintheUtils.normalize_ecto_type(field_type))}
       end)
   end
 

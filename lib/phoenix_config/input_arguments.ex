@@ -69,11 +69,20 @@ defmodule PhoenixConfig.InputArguments do
         required_value = crud_options[:required][crud_action]
 
         if is_nil(required_value) or required_value === [] do
-          raise "Must supply required key for CRUD options for #{ecto_schema} when using blacklist_non_required?"
+          raise to_string(IO.ANSI.format([
+            :red, "Must supply ", :bright, "required", :reset,
+            :red, " key for CRUD options for ", :bright, inspect(ecto_schema), :reset,
+            :red, " when using ", :bright, "blacklist_non_required?"
+          ], true))
         end
 
       {crud_action, _} ->
-        raise "Remove key blacklist_non_required? from #{ecto_schema} for #{crud_action} action instead of setting to false"
+        raise to_string(IO.ANSI.format([
+          :red, "Remove key ", :bright, "blacklist_non_required?", :reset,
+          :red, " from ", :bright, inspect(ecto_schema), :reset,
+          :red, " for ", :bright, to_string(crud_action), :reset,
+          :red, " action instead of setting to false"
+        ], true))
     end)
 
     absinthe_generator_structs

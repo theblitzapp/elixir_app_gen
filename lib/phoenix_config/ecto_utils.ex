@@ -23,9 +23,11 @@ defmodule PhoenixConfig.EctoUtils do
     case schema_association(ecto_schema, relation_name) do
       %{queryable: queryable} -> queryable
       _ ->
-        raise IO.ANSI.red() <>
-              "#{relation_name} doesn't exist on #{inspect ecto_schema}, check your config for this key" <>
-              IO.ANSI.reset()
+        raise to_string(IO.ANSI.format([
+          :red, :bright, to_string(relation_name), :reset,
+          :red, "doesn't exist on ", :bright, inspect(ecto_schema), :reset,
+          :red, ", check your config for this key"
+        ], true))
     end
   end
 
