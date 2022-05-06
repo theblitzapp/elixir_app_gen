@@ -3,7 +3,12 @@ defmodule PhoenixConfig do
   #{File.read!("./README.md")}
   """
 
-  alias PhoenixConfig.{AbsintheTypeMerge, EctoSchemaReflector, InputArguments}
+  alias PhoenixConfig.{
+    AbsintheSchemaBuilder,
+    AbsintheTypeMerge,
+    EctoSchemaReflector,
+    InputArguments
+  }
 
   @type arg_opts :: [
     required: list(atom),
@@ -23,6 +28,13 @@ defmodule PhoenixConfig do
       delete: arg_opts,
       find_and_update_or_create: arg_opts
     ]
+  ]
+
+  @type middleware_opts :: [
+    subscription: list(module),
+    query: list(module),
+    mutation: list(module),
+    all: list(module)
   ]
 
   def moduledoc, do: @moduledoc
@@ -50,5 +62,13 @@ defmodule PhoenixConfig do
 
   def remove_relations(ecto_schema, relation_key) do
     &AbsintheTypeMerge.remove_relations(&1, ecto_schema, relation_key)
+  end
+
+  def post_middleware(middleware_opts) do
+    &AbsintheSchemaBuilder.add_post_middleware_to_schema(&1, middleware_opts)
+  end
+
+  def pre_middleware(middleware_opts) do
+    &AbsintheSchemaBuilder.add_pre_middleware_to_schema(&1, middleware_opts)
   end
 end

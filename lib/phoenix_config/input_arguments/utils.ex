@@ -40,18 +40,24 @@ defmodule PhoenixConfig.InputArguments.Utils do
   def update_absinthe_schema_type_struct(absinthe_generator_structs, ecto_schema, update_fn) do
     case Enum.find_index(
       absinthe_generator_structs,
-      &(&1.type_name === ecto_schema_module_underscore_name(ecto_schema))
+      &(is_struct(&1, AbsintheGenerator.Type) and &1.type_name === ecto_schema_module_underscore_name(ecto_schema))
     ) do
       nil ->
         Logger.error("[PhoenixConfig.InputArgumentsReflector] Can't find type struct for #{ecto_schema}")
 
         absinthe_generator_structs
 
-      index -> update_in(
-        absinthe_generator_structs,
-        [Access.at!(index)],
-        update_fn
-      )
+      index ->
+        if is_struct(Enum.at(absinthe_generator_structs, index), AbsintheGenerator.Mutation) do
+          require IEx
+          IEx.pry
+        end
+
+        update_in(
+          absinthe_generator_structs,
+          [Access.at!(index)],
+          update_fn
+        )
     end
   end
 

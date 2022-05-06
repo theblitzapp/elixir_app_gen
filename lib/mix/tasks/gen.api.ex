@@ -23,15 +23,18 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
       ]
     )
 
-    opts[:dirname]
+    a = opts[:dirname]
       |> PhoenixConfigHelpers.get_phoenix_config_file_path(opts[:file_name])
       |> eval_config_file
       |> expand_crud_types
       |> pre_merge_types
+      |> AbsintheSchemaBuilder.generate
       |> run_config_functions
       |> AbsintheTypeMerge.maybe_merge_types
+    require IEx
+    IEx.pry
+    a
       |> generate_templates
-      |> AbsintheSchemaBuilder.generate
       |> write_generated_templates(Keyword.take(opts, [:force, :quiet]))
   end
 

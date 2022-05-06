@@ -1,4 +1,10 @@
-import PhoenixConfig, only: [crud_from_schema: 2, crud_from_schema: 1, remove_relations: 2]
+import PhoenixConfig, only: [
+  crud_from_schema: 2,
+  crud_from_schema: 1,
+  remove_relations: 2,
+  pre_middleware: 1,
+  post_middleware: 1
+]
 
 alias PhoenixConfig.Support.Accounts
 
@@ -38,5 +44,19 @@ alias PhoenixConfig.Support.Accounts
   crud_from_schema(Accounts.TeamOrganization),
 
   remove_relations(Accounts.Role, [:users]),
-  remove_relations(Accounts.Team, :users)
+  remove_relations(Accounts.Team, :users),
+
+  pre_middleware(
+    subscription: [MyPreMiddleware, MySubscriptionPreMiddleware],
+    query: [MyQueryPreMiddleware],
+    mutation: [MyPreMiddleware, MyMutationPreMiddleware],
+    all: [MyAllPreMiddleware]
+  ),
+
+  post_middleware(
+    subscription: [MyPostMiddleware, MySubscriptionPostMiddleware],
+    query: [MyQueryPostMiddleware],
+    mutation: [MyPostMiddleware, MyMutationPostMiddleware],
+    all: [MyAllPostMiddleware]
+  )
 ]

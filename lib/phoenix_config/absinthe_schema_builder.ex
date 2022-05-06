@@ -5,29 +5,27 @@ defmodule PhoenixConfig.AbsintheSchemaBuilder do
 
   @custom_types_regex ~r/\b(datetime|naive_datetime|date|time|decimal)\b/
 
-  def generate(generation_item_tuples) do
-    schema_struct = PhoenixConfigHelpers.app_name()
-      |> AbsintheGenerator.SchemaBuilder.generate(
-        Enum.map(generation_item_tuples, fn {generation_struct, _template} ->
-          generation_struct
-        end)
-      )
-      |> maybe_preprend_absinthe_custom_types(generation_item_tuples)
+  def generate(generation_structs) do
+    {functions, generation_structs} = Enum.split_with(generation_structs, &is_function/1)
 
-    generation_item_tuples
-      |> Enum.sort_by(fn {%struct{}, _} -> struct end)
-      |> Enum.concat([{schema_struct, AbsintheGenerator.run(schema_struct)}])
+    schema_struct = PhoenixConfigHelpers.app_name()
+      |> AbsintheGenerator.SchemaBuilder.generate(generation_structs)
+      |> maybe_preprend_absinthe_custom_types(generation_structs)
+
+    generation_structs
+      |> Enum.sort_by(fn %struct{} -> struct end)
+      |> Enum.concat([schema_struct | functions])
   end
 
   defp maybe_preprend_absinthe_custom_types(schema_struct, absinthe_generator_structs) do
     absinthe_custom_types? = Enum.any?(absinthe_generator_structs, fn
-      {%AbsintheGenerator.Type{objects: objects}, _} ->
+      %AbsintheGenerator.Type{objects: objects} ->
         Enum.any?(objects, &object_type_has_custom_type?/1)
 
-      {%AbsintheGenerator.Mutation{mutations: mutations}, _} ->
+      %AbsintheGenerator.Mutation{mutations: mutations} ->
         Enum.any?(mutations, &schema_field_has_custom_type?/1)
 
-      {%AbsintheGenerator.Query{queries: queries}, _} ->
+      %AbsintheGenerator.Query{queries: queries} ->
         Enum.any?(queries, &schema_field_has_custom_type?/1)
 
       _ -> false
@@ -50,5 +48,48 @@ defmodule PhoenixConfig.AbsintheSchemaBuilder do
     Enum.any?(arguments, fn %AbsintheGenerator.Schema.Field.Argument{type: type} ->
       to_string(type) =~ @custom_types_regex
     end)
+  end
+
+  def add_post_middleware_to_schema(absinthe_generator_structs, middleware_opts) do
+    Enum.map(absinthe_generator_structs, fn
+      %AbsintheGenerator.Schema{} = schema ->
+        middleware = convert_to_middleware_params(middleware_opts)
+
+        %{schema |
+          post_middleware: middleware ++ schema.post_middleware,
+        }
+
+      generator_struct -> generator_struct
+    end)
+  end
+
+  def add_pre_middleware_to_schema(absinthe_generator_structs, middleware_opts) do
+    Enum.map(absinthe_generator_structs, fn
+      %AbsintheGenerator.Schema{} = schema ->
+        middleware = convert_to_middleware_params(middleware_opts)
+
+        %{schema |
+          pre_middleware: middleware ++ schema.pre_middleware,
+        }
+
+      generator_struct -> generator_struct
+    end)
+  end
+
+  defp convert_to_middleware_params(middleware_opts) do
+    middleware_opts
+      |> Enum.flat_map(fn {middlware_type, modules} ->
+        Enum.map(modules, &{middlware_type, &1})
+      end)
+      |> Enum.group_by(
+        fn {_middlware_type, module} -> module end,
+        fn {middlware_type, _module} -> middlware_type end
+      )
+      |> Enum.map(fn {middleware_module, middleware_types} ->
+        %AbsintheGenerator.Schema.Middleware{
+          module: middleware_module,
+          types: middleware_types
+        }
+      end)
   end
 end
