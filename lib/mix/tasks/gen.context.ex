@@ -9,8 +9,8 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Context do
 
     {opts, _extra_args, _} = OptionParser.parse(args,
       switches: [
-        tests: :boolean,
-        contexts: :boolean,
+        no_tests: :boolean,
+        no_contexts: :boolean,
         force: :boolean,
         quiet: :boolean,
         repo: :string,
@@ -22,23 +22,27 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Context do
       |> Enum.filter(fn {key, _} -> key === :ecto_schema end)
       |> Enum.map(fn {_, value} -> PhoenixConfigHelpers.string_to_module(value) end)
 
-    repo = PhoenixConfigHelpers.string_to_module(opts[:repo])
+    repo_str = if opts[:repo] do
+      opts[:repo] |> PhoenixConfigHelpers.string_to_module |> inspect
+    else
+      "the default repo"
+    end
 
     Mix.shell().info(IO.ANSI.format([
-      :green, "Creating Ecto contexts in ", :bright, inspect(repo), :reset,
+      :green, "Creating Ecto contexts in ", :bright, repo_str, :reset,
       :green, " for schemas ", :bright, "#{ecto_schemas |> Enum.map(&inspect/1) |> Enum.join(", ")}"
     ], true))
 
     ecto_schemas
       |> Enum.group_by(&EctoContextGenerator.context_module/1)
       |> Enum.each(fn {context, schemas} ->
-        if not opts[:tests] or (opts[:tests] and opts[:contexts]) do
+        unless opts[:no_contexts] do
           generate_context_file(context, schemas, opts)
         end
 
-        # if not opts[:tests] or opts[:contexts] and opts[:tests]do
-          # generate_test_file(context, schemas, opts)
-        # end
+        unless opts[:no_tests] do
+          generate_test_file(context, schemas, opts)
+        end
       end)
   end
 
@@ -59,20 +63,20 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Context do
     )
   end
 
-  # defp generate_test_file(context, schemas, opts) do
-  #   test_contents = EctoContextTestGenerator.create_test_module_for_schemas(
-  #     PhoenixConfigHelpers.app_name(),
-  #     test,
-  #     schemas
-  #   )
+  defp generate_test_file(context, schemas, opts) do
+    test_contents = EctoContextTestGenerator.create_test_module_for_schemas(
+      PhoenixConfigHelpers.app_name(),
+      context,
+      schemas
+    )
 
-  #   test_path = EctoContextTestGenerator.test_path(test)
+    test_path = EctoContextTestGenerator.test_path(context)
 
-  #   PhoenixConfigHelpers.write_phoenix_config_file(
-  #     Path.dirname(test_path),
-  #     Path.basename(test_path),
-  #     test_contents,
-  #     opts
-  #   )
-  # end
+    PhoenixConfigHelpers.write_phoenix_config_file(
+      Path.dirname(test_path),
+      Path.basename(test_path),
+      test_contents,
+      opts
+    )
+  end
 end
