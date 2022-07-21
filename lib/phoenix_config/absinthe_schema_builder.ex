@@ -50,6 +50,27 @@ defmodule PhoenixConfig.AbsintheSchemaBuilder do
     end)
   end
 
+  def add_repo_to_data_source(absinthe_generator_structs, repo, contexts) do
+    Enum.map(absinthe_generator_structs, fn
+      %AbsintheGenerator.Schema{data_sources: data_sources} = schema ->
+        %{schema | data_sources: add_repo_to_data_sources(data_sources, repo, contexts)}
+
+      generator_struct -> generator_struct
+    end)
+  end
+
+  defp add_repo_to_data_sources(data_sources, repo, contexts) do
+    Enum.reduce(contexts, data_sources, fn context, data_source_acc ->
+      Enum.map(data_source_acc, fn %AbsintheGenerator.Schema.DataSource{} = data_source ->
+        if data_source.source === inspect(context) do
+          %{data_source | query: String.replace(data_source.query, "\"<REPO>\"", inspect(repo))}
+        else
+          data_source
+        end
+      end)
+    end)
+  end
+
   def add_post_middleware_to_schema(absinthe_generator_structs, middleware_opts) do
     Enum.map(absinthe_generator_structs, fn
       %AbsintheGenerator.Schema{} = schema ->

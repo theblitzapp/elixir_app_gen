@@ -29,6 +29,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
 
   ### Options
   - `dirname` - The directory to generate the config files in
+  - `repo` - The repo to use for this generations
   - `file_name` - The file name for the config
   - `only` - Parts to generate (create, all, find, update, delete)
   - `except` - Parts of the CRUD resource to exclude
@@ -44,6 +45,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
         dirname: :string,
         file_name: :string,
         only: :keep,
+        repo: :string,
         except: :keep,
         context: :string,
         from_ecto_schema: :string
@@ -53,6 +55,9 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
     cond do
       !opts[:from_ecto_schema] and Enum.empty?(extra_args) ->
         Mix.raise("Must provide a from_ecto_schema or create a schema for mix phoenix_config.gen.resource using the --from-ecto-schema flag")
+
+      !opts[:repo] ->
+        Mix.raise("Must provide a repo using the --repo flag")
 
       opts[:from_ecto_schema] ->
         create_and_write_resource_from_schema(opts)
@@ -71,33 +76,41 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
     config_file_path = PhoenixConfigHelpers.config_file_full_path(opts[:dirname], opts[:file_name])
 
     if File.exists?(config_file_path) do
-      contents = create_config_contents(from_ecto_schema, opts[:only], opts[:except])
+      contents = create_config_contents(from_ecto_schema, opts[:repo], opts[:only], opts[:except])
 
       # TODO: Inject this instead of forcing user to do this
       Mix.shell.info("Make sure to merge the following with your phoenix_config.exs\n\n#{contents}")
     else
-      contents = create_config_contents(from_ecto_schema, opts[:only], opts[:except])
+      contents = create_config_contents(from_ecto_schema, opts[:repo], opts[:only], opts[:except])
 
       PhoenixConfigHelpers.write_phoenix_config_file(opts[:dirname], opts[:file_name], contents)
     end
   end
 
-  defp create_config_contents(schema_name, nil, nil) do
+  defp create_config_contents(schema_name, repo, nil, nil) do
     """
     import PhoenixConfig, only: [crud_from_schema: 1]
 
     [
-      crud_from_schema(#{inspect(schema_name)})
+      crud_from_schema(#{inspect(schema_name)}),
+
+      repo_schemas(#{inspect(repo)}, [
+        #{inspect(schema_name)}
+      ])
     ]
     """
   end
 
-  defp create_config_contents(schema_name, only, except) do
+  defp create_config_contents(schema_name, repo, only, except) do
     """
     import PhoenixConfig, only: [crud_from_schema: 2]
 
     [
-      crud_from_schema(#{inspect(schema_name)}#{build_only(only) <> build_except(except)}
+      crud_from_schema(#{inspect(schema_name)}#{build_only(only) <> build_except(except)},
+
+      repo_schemas(#{inspect(repo)}, [
+        #{inspect(schema_name)}
+      ])
     ]
     """
   end

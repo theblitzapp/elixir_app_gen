@@ -32,7 +32,7 @@ defmodule PhoenixConfig.AbsintheTypeMerge do
       fn type_struct, acc_type_struct ->
         %{acc_type_struct |
           enums: merge_enum_objects(acc_type_struct.enums, type_struct.enums),
-          objects: merge_type_objects(acc_type_struct.name, acc_type_struct.objects, type_struct.objects)
+          objects: merge_type_objects(acc_type_struct.type_name, acc_type_struct.objects, type_struct.objects)
         }
     end)
 

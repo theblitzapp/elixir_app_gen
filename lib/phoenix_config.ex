@@ -71,4 +71,12 @@ defmodule PhoenixConfig do
   def pre_middleware(middleware_opts) do
     &AbsintheSchemaBuilder.add_pre_middleware_to_schema(&1, middleware_opts)
   end
+
+  def repo_contexts(repo, contexts) when is_list(contexts) do
+    &AbsintheSchemaBuilder.add_repo_to_data_source(&1, repo, contexts)
+  end
+
+  def repo_contexts(repo, context) do
+    repo_contexts(repo, [context])
+  end
 end

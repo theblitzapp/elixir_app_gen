@@ -3,7 +3,8 @@ import PhoenixConfig, only: [
   crud_from_schema: 1,
   remove_relations: 2,
   pre_middleware: 1,
-  post_middleware: 1
+  post_middleware: 1,
+  repo_contexts: 2
 ]
 
 alias PhoenixConfig.Support.Accounts
@@ -42,6 +43,8 @@ alias PhoenixConfig.Support.Accounts
     ]
   ),
   crud_from_schema(Accounts.TeamOrganization),
+
+  repo_contexts(PhoenixConfig.Support.Repo, Accounts),
 
   remove_relations(Accounts.Role, [:users]),
   remove_relations(Accounts.Team, :users),
