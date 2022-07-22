@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.AppGen.Gen.Context do
+defmodule Mix.Tasks.AppGen.Context do
   use Mix.Task
 
   alias Mix.AppGenHelpers
