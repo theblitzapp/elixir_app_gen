@@ -1,4 +1,4 @@
-defmodule AppConfig.EctoContextGenerator do
+defmodule AppGen.EctoContextGenerator do
   @moduledoc false
 
   def context_path(context_module) do

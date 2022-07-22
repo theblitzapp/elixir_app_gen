@@ -1,11 +1,11 @@
-defmodule AppConfig.Support.Accounts.User do
+defmodule AppGen.Support.Accounts.User do
   @moduledoc "Taken from BlitzPG.AuthAccounts.User"
 
   use Ecto.Schema
 
   import Ecto.Changeset, only: [cast: 3, validate_required: 2, update_change: 3, validate_length: 3]
 
-  alias AppConfig.Support.Accounts.{User, Role, Team, Label}
+  alias AppGen.Support.Accounts.{User, Role, Team, Label}
 
   @username_min 3
   @username_max 15

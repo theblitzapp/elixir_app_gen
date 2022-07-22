@@ -1,9 +1,9 @@
-defmodule AppConfig.Support.Factory.User do
+defmodule AppGen.Support.Factory.User do
   @behaviour FactoryEx
 
-  def schema, do: AppConfig.Support.Accounts.User
+  def schema, do: AppGen.Support.Accounts.User
 
-  def repo, do: AppConfig.Support.Repo
+  def repo, do: AppGen.Support.Repo
 
   def build(params \\ %{}) do
     Map.merge(%{

@@ -1,7 +1,7 @@
-defmodule AppConfig.EctoSchemaReflector do
+defmodule AppGen.EctoSchemaReflector do
   @moduledoc false
 
-  alias AppConfig.{EctoUtils, AbsintheUtils}
+  alias AppGen.{EctoUtils, AbsintheUtils}
 
   def schema_relationship_types(ecto_schemas) do
     schema_fields = Map.new(ecto_schemas, &{&1, resolve_all_relation_schema_fields(&1)})

@@ -1,9 +1,9 @@
-defmodule AppConfig do
+defmodule AppGen do
   @moduledoc """
   #{File.read!("./README.md")}
   """
 
-  alias AppConfig.{
+  alias AppGen.{
     AbsintheSchemaBuilder,
     AbsintheTypeMerge,
     EctoSchemaReflector,

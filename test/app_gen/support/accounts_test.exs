@@ -1,9 +1,9 @@
-defmodule AppConfig.AppConfig.Support.AccountsTest do
-  use AppConfig.DataCase, async: true
+defmodule AppGen.AppGen.Support.AccountsTest do
+  use AppGen.DataCase, async: true
 
-  alias AppConfig.AppConfig.Support.Accounts.Support.Factory
+  alias AppGen.AppGen.Support.Accounts.Support.Factory
 
-  alias AppConfig.AppConfig.Support.Accounts
+  alias AppGen.AppGen.Support.Accounts
 
   # User Tests
 
@@ -11,7 +11,7 @@ defmodule AppConfig.AppConfig.Support.AccountsTest do
     test "creates a module with proper required fields" do
       params = FactoryEx.build(Factory.User)
 
-      assert {:ok, result} = AppConfig.Support.Accounts.create_user(params)
+      assert {:ok, result} = AppGen.Support.Accounts.create_user(params)
 
       assert Map.drop(result, [:__struct__, :__meta__]) === params
     end
@@ -22,14 +22,14 @@ defmodule AppConfig.AppConfig.Support.AccountsTest do
       user = FactoryEx.insert!(Factory.User)
 
       assert {:ok, ^user} =
-               AppConfig.Support.Accounts.find_user(%{
+               AppGen.Support.Accounts.find_user(%{
                  id: user.id
                })
     end
 
     test "returns error if user not found" do
       assert {:error, %ErrorMessage{code: :not_found}} =
-               AppConfig.Support.Accounts.find_user(%{
+               AppGen.Support.Accounts.find_user(%{
                  id: Enum.random(1..100_000)
                })
     end
@@ -39,7 +39,7 @@ defmodule AppConfig.AppConfig.Support.AccountsTest do
     test "returns all users" do
       users = FactoryEx.insert_many!(6, Factory.User)
 
-      assert {:ok, results} = AppConfig.Support.Accounts.all_users()
+      assert {:ok, results} = AppGen.Support.Accounts.all_users()
 
       assert Enum.sort(results, & &1.id) === Enum.sort(users, & &1.id)
     end
@@ -49,7 +49,7 @@ defmodule AppConfig.AppConfig.Support.AccountsTest do
       ids = users |> Enum.take(2) |> Enum.map(& &1.id)
 
       assert {:ok, results} =
-               AppConfig.Support.Accounts.all_users(%{
+               AppGen.Support.Accounts.all_users(%{
                  id: ids
                })
 
@@ -66,7 +66,7 @@ defmodule AppConfig.AppConfig.Support.AccountsTest do
       update_params = FactoryEx.build_params(Factory.User)
 
       assert {:ok, updated_res} =
-               AppConfig.Support.Accounts.update_user(
+               AppGen.Support.Accounts.update_user(
                  User,
                  user,
                  update_params
@@ -85,7 +85,7 @@ defmodule AppConfig.AppConfig.Support.AccountsTest do
         })
 
       assert {:error, %Ecto.Changeset{valid?: false}} =
-               AppConfig.Support.Accounts.update_user(
+               AppGen.Support.Accounts.update_user(
                  User,
                  user,
                  new_params
@@ -98,7 +98,7 @@ defmodule AppConfig.AppConfig.Support.AccountsTest do
       user = FactoryEx.insert!(Factory.User)
 
       assert {:ok, ^user} =
-               AppConfig.Support.Accounts.delete_user(
+               AppGen.Support.Accounts.delete_user(
                  User,
                  user,
                  new_params

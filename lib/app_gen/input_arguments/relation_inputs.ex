@@ -1,4 +1,4 @@
-defmodule AppConfig.InputArguments.RelationInputs do
+defmodule AppGen.InputArguments.RelationInputs do
   @moduledoc """
   This module takes in relations in the format of
   - :relation
@@ -16,10 +16,10 @@ defmodule AppConfig.InputArguments.RelationInputs do
 
   require Logger
 
-  alias AppConfig.{EctoUtils, AbsintheUtils}
-  alias AppConfig.InputArguments.Utils
+  alias AppGen.{EctoUtils, AbsintheUtils}
+  alias AppGen.InputArguments.Utils
 
-  @arg_names AppConfig.InputArguments.arg_names() -- [:relation_inputs]
+  @arg_names AppGen.InputArguments.arg_names() -- [:relation_inputs]
 
   def run_option(crud_relation_inputs, ecto_schema, absinthe_generator_structs) do
     Enum.reduce(crud_relation_inputs, absinthe_generator_structs, fn
@@ -197,7 +197,7 @@ defmodule AppConfig.InputArguments.RelationInputs do
 
     cond do
       relation_args[:blacklist_non_required?] && !relation_args[:required] ->
-        Logger.error("[AppConfig.InputArguments.RelationInputs] :blacklist_non_required? is set for #{type_name} but no :required keys found")
+        Logger.error("[AppGen.InputArguments.RelationInputs] :blacklist_non_required? is set for #{type_name} but no :required keys found")
 
         fields
 

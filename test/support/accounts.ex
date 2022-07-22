@@ -1,3 +1,3 @@
-defmodule AppConfig.Support.Accounts do
+defmodule AppGen.Support.Accounts do
 
 end

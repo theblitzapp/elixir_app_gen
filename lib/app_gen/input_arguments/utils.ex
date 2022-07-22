@@ -1,4 +1,4 @@
-defmodule AppConfig.InputArguments.Utils do
+defmodule AppGen.InputArguments.Utils do
   @moduledoc false
 
   require Logger
@@ -17,7 +17,7 @@ defmodule AppConfig.InputArguments.Utils do
       [crud_action] -> crud_action
 
       _ ->
-        Logger.warn("[AppConfig.InputArgumentsReflector] Couldn't find crud action for resolver: #{resolver_module_function}")
+        Logger.warn("[AppGen.InputArgumentsReflector] Couldn't find crud action for resolver: #{resolver_module_function}")
 
         nil
     end
@@ -43,7 +43,7 @@ defmodule AppConfig.InputArguments.Utils do
       &(is_struct(&1, AbsintheGenerator.Type) and &1.type_name === ecto_schema_module_underscore_name(ecto_schema))
     ) do
       nil ->
-        Logger.error("[AppConfig.InputArgumentsReflector] Can't find type struct for #{ecto_schema}")
+        Logger.error("[AppGen.InputArgumentsReflector] Can't find type struct for #{ecto_schema}")
 
         absinthe_generator_structs
 

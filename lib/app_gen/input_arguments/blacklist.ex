@@ -1,7 +1,7 @@
-defmodule AppConfig.InputArguments.Blacklist do
+defmodule AppGen.InputArguments.Blacklist do
   @moduledoc false
 
-  alias AppConfig.InputArguments.Utils
+  alias AppGen.InputArguments.Utils
 
   def run_option(blacklist_opts, absinthe_generator_structs, ecto_schema) do
     absinthe_generator_structs

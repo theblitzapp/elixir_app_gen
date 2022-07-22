@@ -1,27 +1,27 @@
-# AppConfig
+# AppGen
 
 **TODO: Add description**
 
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `app_config` to your list of dependencies in `mix.exs`:
+by adding `app_gen` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:app_config, "~> 0.1.0"}
+    {:app_gen, "~> 0.1.0"}
   ]
 end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/app_config](https://hexdocs.pm/app_config).
+be found at [https://hexdocs.pm/app_gen](https://hexdocs.pm/app_gen).
 
 ## Example
 ```elixir
-import AppConfig, only: [
+import AppGen, only: [
   crud_from_schema: 2,
   crud_from_schema: 1,
   remove_relations: 2,
@@ -29,7 +29,7 @@ import AppConfig, only: [
   post_middleware: 1
 ]
 
-alias AppConfig.Support.Accounts
+alias AppGen.Support.Accounts
 
 [
   crud_from_schema(Accounts.User,

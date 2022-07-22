@@ -1,14 +1,14 @@
-defmodule Mix.Tasks.AppConfig.Gen do
+defmodule Mix.Tasks.AppGen.Gen do
   use Mix.Task
 
-  alias Mix.AppConfigHelpers
+  alias Mix.AppGenHelpers
 
-  @shortdoc "Lists help for app_config.gen. commands"
-  @moduledoc AppConfig.moduledoc()
+  @shortdoc "Lists help for app_gen.gen. commands"
+  @moduledoc AppGen.moduledoc()
 
   def run(_args) do
-    AppConfigHelpers.ensure_not_in_umbrella!("app_config.gen")
+    AppGenHelpers.ensure_not_in_umbrella!("app_gen.gen")
 
-    Mix.Task.run("help", ["--search", "app_config"])
+    Mix.Task.run("help", ["--search", "app_gen"])
   end
 end

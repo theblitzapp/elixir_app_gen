@@ -1,11 +1,11 @@
-defmodule Mix.Tasks.AppConfig.Gen.Context do
+defmodule Mix.Tasks.AppGen.Gen.Context do
   use Mix.Task
 
-  alias Mix.AppConfigHelpers
-  alias AppConfig.{EctoContextGenerator, EctoContextTestGenerator}
+  alias Mix.AppGenHelpers
+  alias AppGen.{EctoContextGenerator, EctoContextTestGenerator}
 
   def run(args) do
-    AppConfigHelpers.ensure_not_in_umbrella!("app_config.gen.context")
+    AppGenHelpers.ensure_not_in_umbrella!("app_gen.gen.context")
 
     {opts, _extra_args, _} = OptionParser.parse(args,
       switches: [
@@ -20,10 +20,10 @@ defmodule Mix.Tasks.AppConfig.Gen.Context do
 
     ecto_schemas = opts
       |> Enum.filter(fn {key, _} -> key === :ecto_schema end)
-      |> Enum.map(fn {_, value} -> AppConfigHelpers.string_to_module(value) end)
+      |> Enum.map(fn {_, value} -> AppGenHelpers.string_to_module(value) end)
 
     repo_str = if opts[:repo] do
-      opts[:repo] |> AppConfigHelpers.string_to_module |> inspect
+      opts[:repo] |> AppGenHelpers.string_to_module |> inspect
     else
       "the default repo"
     end
@@ -48,14 +48,14 @@ defmodule Mix.Tasks.AppConfig.Gen.Context do
 
   defp generate_context_file(context, schemas, opts) do
     context_contents = EctoContextGenerator.create_context_module_for_schemas(
-      AppConfigHelpers.app_name(),
+      AppGenHelpers.app_name(),
       context,
       schemas
     )
 
     context_path = EctoContextGenerator.context_path(context)
 
-    AppConfigHelpers.write_app_config_file(
+    AppGenHelpers.write_app_gen_file(
       Path.dirname(context_path),
       Path.basename(context_path),
       context_contents,
@@ -65,14 +65,14 @@ defmodule Mix.Tasks.AppConfig.Gen.Context do
 
   defp generate_test_file(context, schemas, opts) do
     test_contents = EctoContextTestGenerator.create_test_module_for_schemas(
-      AppConfigHelpers.app_name(),
+      AppGenHelpers.app_name(),
       context,
       schemas
     )
 
     test_path = EctoContextTestGenerator.test_path(context)
 
-    AppConfigHelpers.write_app_config_file(
+    AppGenHelpers.write_app_gen_file(
       Path.dirname(test_path),
       Path.basename(test_path),
       test_contents,

@@ -1,4 +1,4 @@
-import AppConfig, only: [
+import AppGen, only: [
   crud_from_schema: 2,
   crud_from_schema: 1,
   remove_relations: 2,
@@ -7,7 +7,7 @@ import AppConfig, only: [
   repo_contexts: 2
 ]
 
-alias AppConfig.Support.Accounts
+alias AppGen.Support.Accounts
 
 [
   crud_from_schema(Accounts.User,
@@ -44,7 +44,7 @@ alias AppConfig.Support.Accounts
   ),
   crud_from_schema(Accounts.TeamOrganization),
 
-  repo_contexts(AppConfig.Support.Repo, Accounts),
+  repo_contexts(AppGen.Support.Repo, Accounts),
 
   remove_relations(Accounts.Role, [:users]),
   remove_relations(Accounts.Team, :users),

@@ -1,5 +1,5 @@
-defmodule AppConfig.Support.Repo do
+defmodule AppGen.Support.Repo do
   use Ecto.Repo,
-    otp_app: :app_config,
+    otp_app: :app_gen,
     adapter: Ecto.Adapters.Postgres
 end

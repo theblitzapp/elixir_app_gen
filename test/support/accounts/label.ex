@@ -1,11 +1,11 @@
-defmodule AppConfig.Support.Accounts.Label do
+defmodule AppGen.Support.Accounts.Label do
   @moduledoc "Taken from BlitzPG.AuthAccounts.User"
 
   use Ecto.Schema
 
   import Ecto.Changeset, only: [cast: 3, validate_required: 2]
 
-  alias AppConfig.Support.Accounts.Label
+  alias AppGen.Support.Accounts.Label
 
   schema "account_labels" do
     field :label, :string

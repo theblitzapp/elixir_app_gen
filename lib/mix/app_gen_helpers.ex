@@ -1,8 +1,8 @@
-defmodule Mix.AppConfigHelpers do
+defmodule Mix.AppGenHelpers do
   def app_name, do: Mix.Project.config()[:app] |> to_string |> Macro.camelize
 
   def default_config_directory, do: "./"
-  def default_config_file_name, do: "app_config.exs"
+  def default_config_file_name, do: "app_gen.exs"
 
   def ensure_not_in_umbrella!(command) do
     if Mix.Project.umbrella?() do
@@ -10,17 +10,17 @@ defmodule Mix.AppConfigHelpers do
     end
   end
 
-  def get_app_config_file_path(dirname, file_name) do
+  def get_app_gen_file_path(dirname, file_name) do
     full_path = config_file_full_path(dirname, file_name)
 
     if File.exists?(full_path) do
       full_path
     else
-      Mix.raise("No config file found at #{full_path}, make sure you run app_config.gen.resource")
+      Mix.raise("No config file found at #{full_path}, make sure you run app_gen.gen.resource")
     end
   end
 
-  def write_app_config_file(dirname, file_name, contents, opts \\ []) do
+  def write_app_gen_file(dirname, file_name, contents, opts \\ []) do
     Mix.Generator.create_file(
       config_file_full_path(dirname, file_name),
       contents,

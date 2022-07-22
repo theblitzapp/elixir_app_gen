@@ -1,7 +1,7 @@
-defmodule AppConfig.InputArguments.Required do
+defmodule AppGen.InputArguments.Required do
   @moduledoc false
 
-  alias AppConfig.InputArguments.Utils
+  alias AppGen.InputArguments.Utils
 
   @mutation_actions AbsintheGenerator.CrudResource.mutation_crud_types()
 

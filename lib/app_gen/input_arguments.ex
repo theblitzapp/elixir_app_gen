@@ -1,9 +1,9 @@
-defmodule AppConfig.InputArguments do
+defmodule AppGen.InputArguments do
   @moduledoc false
 
   require Logger
 
-  alias AppConfig.InputArguments
+  alias AppGen.InputArguments
 
   @arg_names [:blacklist, :required, :blacklist_non_required?, :relation_inputs]
 

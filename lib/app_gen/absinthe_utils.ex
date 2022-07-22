@@ -1,4 +1,4 @@
-defmodule AppConfig.AbsintheUtils do
+defmodule AppGen.AbsintheUtils do
   @moduledoc false
 
   def blacklist_input_types, do: [:inserted_at, :updated_at]

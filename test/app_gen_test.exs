@@ -1,8 +1,8 @@
-defmodule AppConfigTest do
+defmodule AppGenTest do
   use ExUnit.Case
-  doctest AppConfig
+  doctest AppGen
 
   test "greets the world" do
-    assert AppConfig.hello() == :world
+    assert AppGen.hello() == :world
   end
 end
