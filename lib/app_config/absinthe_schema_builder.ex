@@ -1,14 +1,14 @@
-defmodule PhoenixConfig.AbsintheSchemaBuilder do
+defmodule AppConfig.AbsintheSchemaBuilder do
   @moduledoc false
 
-  alias Mix.PhoenixConfigHelpers
+  alias Mix.AppConfigHelpers
 
   @custom_types_regex ~r/\b(datetime|naive_datetime|date|time|decimal)\b/
 
   def generate(generation_structs) do
     {functions, generation_structs} = Enum.split_with(generation_structs, &is_function/1)
 
-    schema_struct = PhoenixConfigHelpers.app_name()
+    schema_struct = AppConfigHelpers.app_name()
       |> AbsintheGenerator.SchemaBuilder.generate(generation_structs)
       |> maybe_preprend_absinthe_custom_types(generation_structs)
 

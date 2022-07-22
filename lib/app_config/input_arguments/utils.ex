@@ -1,4 +1,4 @@
-defmodule PhoenixConfig.InputArguments.Utils do
+defmodule AppConfig.InputArguments.Utils do
   @moduledoc false
 
   require Logger
@@ -17,7 +17,7 @@ defmodule PhoenixConfig.InputArguments.Utils do
       [crud_action] -> crud_action
 
       _ ->
-        Logger.warn("[PhoenixConfig.InputArgumentsReflector] Couldn't find crud action for resolver: #{resolver_module_function}")
+        Logger.warn("[AppConfig.InputArgumentsReflector] Couldn't find crud action for resolver: #{resolver_module_function}")
 
         nil
     end
@@ -43,7 +43,7 @@ defmodule PhoenixConfig.InputArguments.Utils do
       &(is_struct(&1, AbsintheGenerator.Type) and &1.type_name === ecto_schema_module_underscore_name(ecto_schema))
     ) do
       nil ->
-        Logger.error("[PhoenixConfig.InputArgumentsReflector] Can't find type struct for #{ecto_schema}")
+        Logger.error("[AppConfig.InputArgumentsReflector] Can't find type struct for #{ecto_schema}")
 
         absinthe_generator_structs
 

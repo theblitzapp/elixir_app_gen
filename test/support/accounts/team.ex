@@ -1,11 +1,11 @@
-defmodule PhoenixConfig.Support.Accounts.Team do
+defmodule AppConfig.Support.Accounts.Team do
   @moduledoc "Taken from BlitzPG.AuthAccounts.User"
 
   use Ecto.Schema
 
   import Ecto.Changeset, only: [cast: 3, validate_required: 2]
 
-  alias PhoenixConfig.Support.Accounts.{User, Team, TeamOrganization}
+  alias AppConfig.Support.Accounts.{User, Team, TeamOrganization}
 
   schema "teams" do
     field :name, :string

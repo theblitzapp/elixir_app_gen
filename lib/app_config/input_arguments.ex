@@ -1,9 +1,9 @@
-defmodule PhoenixConfig.InputArguments do
+defmodule AppConfig.InputArguments do
   @moduledoc false
 
   require Logger
 
-  alias PhoenixConfig.InputArguments
+  alias AppConfig.InputArguments
 
   @arg_names [:blacklist, :required, :blacklist_non_required?, :relation_inputs]
 

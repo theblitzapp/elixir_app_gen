@@ -1,8 +1,8 @@
-defmodule PhoenixConfigTest do
+defmodule AppConfigTest do
   use ExUnit.Case
-  doctest PhoenixConfig
+  doctest AppConfig
 
   test "greets the world" do
-    assert PhoenixConfig.hello() == :world
+    assert AppConfig.hello() == :world
   end
 end

@@ -1,4 +1,4 @@
-defmodule PhoenixConfig.EctoContextTestGenerator do
+defmodule AppConfig.EctoContextTestGenerator do
   def test_path(context_module) do
     context_app_module = Mix.Phoenix.context_app()
       |> to_string

@@ -1,5 +1,5 @@
-defmodule PhoenixConfig.Support.Repo do
+defmodule AppConfig.Support.Repo do
   use Ecto.Repo,
-    otp_app: :phoenix_config,
+    otp_app: :app_config,
     adapter: Ecto.Adapters.Postgres
 end

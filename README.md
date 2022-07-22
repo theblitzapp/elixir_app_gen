@@ -1,27 +1,27 @@
-# PhoenixConfig
+# AppConfig
 
 **TODO: Add description**
 
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `phoenix_config` to your list of dependencies in `mix.exs`:
+by adding `app_config` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:phoenix_config, "~> 0.1.0"}
+    {:app_config, "~> 0.1.0"}
   ]
 end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/phoenix_config](https://hexdocs.pm/phoenix_config).
+be found at [https://hexdocs.pm/app_config](https://hexdocs.pm/app_config).
 
 ## Example
 ```elixir
-import PhoenixConfig, only: [
+import AppConfig, only: [
   crud_from_schema: 2,
   crud_from_schema: 1,
   remove_relations: 2,
@@ -29,7 +29,7 @@ import PhoenixConfig, only: [
   post_middleware: 1
 ]
 
-alias PhoenixConfig.Support.Accounts
+alias AppConfig.Support.Accounts
 
 [
   crud_from_schema(Accounts.User,

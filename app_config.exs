@@ -1,4 +1,4 @@
-import PhoenixConfig, only: [
+import AppConfig, only: [
   crud_from_schema: 2,
   crud_from_schema: 1,
   remove_relations: 2,
@@ -7,7 +7,7 @@ import PhoenixConfig, only: [
   repo_contexts: 2
 ]
 
-alias PhoenixConfig.Support.Accounts
+alias AppConfig.Support.Accounts
 
 [
   crud_from_schema(Accounts.User,
@@ -44,7 +44,7 @@ alias PhoenixConfig.Support.Accounts
   ),
   crud_from_schema(Accounts.TeamOrganization),
 
-  repo_contexts(PhoenixConfig.Support.Repo, Accounts),
+  repo_contexts(AppConfig.Support.Repo, Accounts),
 
   remove_relations(Accounts.Role, [:users]),
   remove_relations(Accounts.Team, :users),

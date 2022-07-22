@@ -1,4 +1,4 @@
-defmodule PhoenixConfig.AbsintheUtils do
+defmodule AppConfig.AbsintheUtils do
   @moduledoc false
 
   def blacklist_input_types, do: [:inserted_at, :updated_at]

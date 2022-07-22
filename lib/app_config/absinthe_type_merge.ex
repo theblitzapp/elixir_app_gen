@@ -1,7 +1,7 @@
-defmodule PhoenixConfig.AbsintheTypeMerge do
+defmodule AppConfig.AbsintheTypeMerge do
   @moduledoc false
 
-  alias PhoenixConfig.EctoSchemaReflector
+  alias AppConfig.EctoSchemaReflector
 
   def maybe_merge_types(absinthe_generator_structs) do
     {non_type_structs, duplicate_type_structs_map} = absinthe_generator_structs

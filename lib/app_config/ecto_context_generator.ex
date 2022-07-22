@@ -1,4 +1,4 @@
-defmodule PhoenixConfig.EctoContextGenerator do
+defmodule AppConfig.EctoContextGenerator do
   @moduledoc false
 
   def context_path(context_module) do

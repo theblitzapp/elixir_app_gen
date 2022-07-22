@@ -1,4 +1,4 @@
-defmodule PhoenixConfig.EctoUtils do
+defmodule AppConfig.EctoUtils do
   @moduledoc false
 
   require Logger
@@ -55,7 +55,7 @@ defmodule PhoenixConfig.EctoUtils do
       %{cardinality: :one} -> false
       %{cardinality: :many} -> true
       assication_record ->
-        Logger.error("[PhoenixConfig.EctoUtils] Error checking if schema #{ecto_schema} relationship #{relation_name} is a list\n#{inspect assication_record}")
+        Logger.error("[AppConfig.EctoUtils] Error checking if schema #{ecto_schema} relationship #{relation_name} is a list\n#{inspect assication_record}")
 
         false
     end
