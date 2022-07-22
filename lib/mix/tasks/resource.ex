@@ -4,7 +4,7 @@ defmodule Mix.Tasks.AppGen.Resource do
   alias Mix.AppGenHelpers
   alias AppGen.EctoContextGenerator
 
-  @shortdoc "Creates a resource file that will be used to configure absinthe routes and can create schemas"
+  @shortdoc "Used to create app_gen.exs files or to add new CRUD resources in"
   @moduledoc """
   You can use this to create all resources needed for a GraphQL API
 
@@ -63,7 +63,7 @@ defmodule Mix.Tasks.AppGen.Resource do
         create_and_write_resource_from_schema(opts)
 
       extra_args ->
-        ecto_schema = create_schema_from_args(extra_args)
+        ecto_schema = create_schema_from_args(opts[:repo], extra_args)
 
         opts
           |> Keyword.merge(from_ecto_schema: ecto_schema)
@@ -121,7 +121,7 @@ defmodule Mix.Tasks.AppGen.Resource do
   defp build_except(nil), do: ""
   defp build_except(except), do: ", except: #{inspect(except)}"
 
-  defp create_schema_from_args(extra_args) do
+  defp create_schema_from_args(repo, extra_args) do
     with :ok <- Mix.Tasks.Phx.Gen.Schema.run(extra_args) do
       context_app = Mix.Phoenix.context_app() |> to_string |> Macro.camelize
 
@@ -129,13 +129,13 @@ defmodule Mix.Tasks.AppGen.Resource do
       context_module = context_module_from_schema_module(schema_module)
       ecto_schema = safe_concat_with_error(context_app, schema_module)
 
-      ensure_context_module_created(Mix.Phoenix.context_app(), context_module, ecto_schema)
+      ensure_context_module_created(Mix.Phoenix.context_app(), repo, context_module, ecto_schema)
 
       inspect(ecto_schema)
     end
   end
 
-  defp ensure_context_module_created(context_app, context_module, ecto_schema) do
+  defp ensure_context_module_created(context_app, repo, context_module, ecto_schema) do
     context_app_module = context_app |> to_string |> Macro.camelize
     Module.safe_concat(context_app_module, context_module)
 
@@ -147,7 +147,7 @@ defmodule Mix.Tasks.AppGen.Resource do
 
         context_module_path = Mix.Phoenix.context_lib_path(context_app, "#{Macro.underscore(context_module)}.ex")
 
-        if Mix.Generator.create_file(context_module_path, EctoContextGenerator.create_context_module_for_schemas(context_app_module, context_module, [ecto_schema])) do
+        if Mix.Generator.create_file(context_module_path, EctoContextGenerator.create_context_module_for_schemas(context_app_module, repo, context_module, [ecto_schema])) do
           Code.compile_file(context_module_path)
 
           safe_concat_with_error(context_app_module, context_module)

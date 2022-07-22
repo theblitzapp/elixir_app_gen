@@ -22,7 +22,7 @@ defmodule AppGen.EctoContextGenerator do
       |> Enum.join(".")
   end
 
-  def create_context_module_for_schemas(context_app, context_module, schemas) do
+  def create_context_module_for_schemas(context_app, repo, context_module, schemas) do
     context_app_string = to_module_string(context_app)
     context_module_string = to_module_string(context_module)
     full_context_module = "#{context_app_string}.#{context_module_string}"
@@ -33,38 +33,48 @@ defmodule AppGen.EctoContextGenerator do
 
       #{schemas |> Enum.map(&"alias #{inspect(&1)}") |> Enum.join("\n")}
 
-      #{schemas |> Enum.map(&create_ecto_shorts_crud_functions/1) |> Enum.join("\n")}
+      #{maybe_repo_module_attribute(repo)}
+
+      #{schemas |> Enum.map(&create_ecto_shorts_crud_functions(&1, repo)) |> Enum.join("\n")}
     end
     """)
   end
 
-  defp create_ecto_shorts_crud_functions(schema) do
+  defp maybe_repo_module_attribute(nil), do: ""
+  defp maybe_repo_module_attribute(repo) do
+    repo_underscore_name = repo |> String.split(".") |> List.last |> Macro.underscore
+
+    "@#{repo_underscore_name}_repo %{repo: #{repo}}"
+  end
+
+  defp create_ecto_shorts_crud_functions(schema, repo) do
     schema_module = schema |> inspect |> Macro.camelize |> String.split(".") |> List.last
     schema_name = Macro.underscore(schema_module)
+    repo_opt = if repo, do: ", @repo", else: ""
 
     """
       def create_#{schema_name}(params) do
-        Actions.create(#{schema_module}, params)
+        Actions.create(#{schema_module}, params#{repo_opt})
       end
 
       def find_#{schema_name}(params) do
-        Actions.find(#{schema_module}, params)
+        Actions.find(#{schema_module}, params#{repo_opt})
       end
 
       def all_#{Inflex.pluralize(to_string(schema_name))}(params #{"\\"}#{"\\"} %{}) do
-        Actions.all(#{schema_module}, params)
+        Actions.all(#{schema_module}, params#{repo_opt})
       end
 
       def update_#{schema_name}(id_or_schema, params) do
-        Actions.update(#{schema_module}, id_or_schema, params)
+        Actions.update(#{schema_module}, id_or_schema, params#{repo_opt})
       end
 
       def delete_#{schema_name}(id_or_schema) do
-        Actions.delete(#{schema_module}, id_or_schema)
+        Actions.delete(#{schema_module}, id_or_schema#{repo_opt})
       end
 
       def find_and_update_or_create_#{schema_name}(params, update_params) do
-        Actions.find_and_update(#{schema_module}, params, update_params)
+        Actions.find_and_update(#{schema_module}, params, update_params#{repo_opt})
       end
     """
   end

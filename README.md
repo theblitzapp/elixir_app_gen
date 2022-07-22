@@ -30,7 +30,9 @@ Checkout `app_gen.exs` for an example
 
 ## Available Mix Commands
 ```
-mix app_gen          # Lists help for app_gen.gen. commands
-mix app_gen.api      # Utilizes the config file and generates a GraphQL API
-mix app_gen.resource # Creates a resource file that will be used to configure absinthe routes and can create schemas
+mix app_gen          # Lists help for app_gen commands
+mix app_gen.api      # Utilizes all the config files and generates a GraphQL API
+mix app_gen.context  # Creates a ecto context with functions from EctoShorts as well as tests
+mix app_gen.resource # Used to create app_gen.exs files or to add new CRUD resources in
+mix app_gen.schema   # Creates a ecto schema that has a factory
 ```

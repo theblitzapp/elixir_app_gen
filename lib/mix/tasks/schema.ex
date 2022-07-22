@@ -10,17 +10,13 @@ defmodule Mix.Tasks.AppGen.Schema do
   #### Example
 
   ```bash
-  > mix app_gen.resource Accounts.User email:string name:string birthday:date
+  > mix app_gen.resource --repo MyApp.Repo Accounts.User email:string name:string birthday:date
   ```
 
   ### Options
   - `dirname` - The directory to generate the config files in
   - `repo` - The repo to use for this generations
   - `file_name` - The file name for the config
-  - `only` - Parts to generate (create, all, find, update, delete)
-  - `except` - Parts of the CRUD resource to exclude
-  - `context` - Context module if supplying `--from-ecto-schema`
-  - `from-ecto-schema` - Specify a specific module instead of generating a new schema
   """
 
   use Mix.Task
@@ -34,31 +30,21 @@ defmodule Mix.Tasks.AppGen.Schema do
       switches: [
         dirname: :string,
         file_name: :string,
-        only: :keep,
-        repo: :string,
-        except: :keep,
-        context: :string,
-        from_ecto_schema: :string
+        repo: :string
       ]
     )
 
-    cond do
-      !opts[:from_ecto_schema] and Enum.empty?(extra_args) ->
-        Mix.raise("Must provide a from_ecto_schema or create a schema for mix app_gen.gen.resource using the --from-ecto-schema flag")
-
-      !opts[:repo] ->
-        Mix.raise("Must provide a repo using the --repo flag")
-
-      opts[:from_ecto_schema] ->
-        create_and_write_resource_from_schema(opts)
-
-      extra_args ->
-        ecto_schema = create_schema_from_args(extra_args)
-
-        opts
-          |> Keyword.merge(from_ecto_schema: ecto_schema)
-          |> create_and_write_resource_from_schema
+    if opts[:repo] do
+      with :ok <- Mix.Tasks.Phx.Gen.Schema.run(extra_args) do
+        System.shell("elixir --erl \"-elixir ansi_enabled true\" -S mix factory_ex.gen --repo #{opts[:repo]} #{ecto_schema_module(extra_args)}", into: IO.stream())
+      end
+    else
+      Mix.raise("Must provide a repo using the --repo flag")
     end
+  end
+
+  defp ecto_schema_module(extra_args) do
+    "#{AppGenHelpers.app_name()}.#{hd(extra_args)}"
   end
 end
 

@@ -1,26 +1,19 @@
 defmodule Mix.Tasks.AppGen.Context do
-  @shortdoc "Creates a ecto schema that has a factory"
+  @shortdoc "Creates a ecto context with functions from EctoShorts as well as tests"
   @moduledoc """
-  You can use this to create ecto schemas that come with a factory
+  You can use this to create ecto schema contexts and related tests
 
-  ***Note: You must have [`factory_ex`](https://github.com/theblitzapp/factory_ex) installed to use this***
-
-  You can pass in the same arguments you would to `mix phx.gen.schema`
+  ***Note: You must have [`ecto`](https://github.com/mikaak/ecto) installed to use this***
 
   #### Example
+  `--repo` is a required flag for the ecto repo
 
   ```bash
-  > mix app_gen.resource Accounts.User email:string name:string birthday:date
+  > mix app_gen.context --repo MyApp.Repo --from-ecto-schema
   ```
 
   ### Options
-  - `dirname` - The directory to generate the config files in
-  - `repo` - The repo to use for this generations
-  - `file_name` - The file name for the config
-  - `only` - Parts to generate (create, all, find, update, delete)
-  - `except` - Parts of the CRUD resource to exclude
-  - `context` - Context module if supplying `--from-ecto-schema`
-  - `from-ecto-schema` - Specify a specific module instead of generating a new schema
+  - `ecto-schema` - Specify a specific module instead of generating a new schema
   """
 
   use Mix.Task
@@ -33,7 +26,6 @@ defmodule Mix.Tasks.AppGen.Context do
 
     {opts, _extra_args, _} = OptionParser.parse(args,
       switches: [
-        no_factories: :boolean,
         no_tests: :boolean,
         no_contexts: :boolean,
         force: :boolean,
@@ -82,6 +74,7 @@ defmodule Mix.Tasks.AppGen.Context do
   defp generate_context_file(context, schemas, opts) do
     context_contents = EctoContextGenerator.create_context_module_for_schemas(
       AppGenHelpers.app_name(),
+      opts[:repo],
       context,
       schemas
     )
