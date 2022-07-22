@@ -9,6 +9,7 @@ defmodule Mix.Tasks.AppGen.Context do
 
     {opts, _extra_args, _} = OptionParser.parse(args,
       switches: [
+        no_factories: :boolean,
         no_tests: :boolean,
         no_contexts: :boolean,
         force: :boolean,
@@ -42,6 +43,10 @@ defmodule Mix.Tasks.AppGen.Context do
 
         unless opts[:no_tests] do
           generate_test_file(context, schemas, opts)
+        end
+
+        unless opts[:no_factories] do
+          generate_context_file(schemas, opts)
         end
       end)
   end
