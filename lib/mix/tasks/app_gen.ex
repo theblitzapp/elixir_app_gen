@@ -9,6 +9,6 @@ defmodule Mix.Tasks.AppGen do
   def run(_args) do
     AppGenHelpers.ensure_not_in_umbrella!("app_gen.gen")
 
-    Mix.Task.run("help", ["--search", "app_gen"])
+    Mix.Task.run("help", ["app_gen"])
   end
 end
