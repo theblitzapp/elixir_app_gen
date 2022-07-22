@@ -34,13 +34,32 @@ defmodule Mix.Tasks.AppGen.Schema do
       ]
     )
 
+
     if opts[:repo] do
+      validate_repo!(opts[:repo])
+
       with :ok <- Mix.Tasks.Phx.Gen.Schema.run(extra_args) do
-        System.shell("elixir --erl \"-elixir ansi_enabled true\" -S mix factory_ex.gen --repo #{opts[:repo]} #{ecto_schema_module(extra_args)}", into: IO.stream())
+        require_new_schema_file(extra_args)
+
+        extra_args
+          |> ecto_schema_module
+          |> AppGenHelpers.string_to_module
+          |> Mix.Tasks.FactoryEx.Gen.generate_factory(opts[:repo], opts)
       end
     else
       Mix.raise("Must provide a repo using the --repo flag")
     end
+  end
+
+  defp validate_repo!(repo) do
+    AppGenHelpers.string_to_module(repo)
+  end
+
+  defp require_new_schema_file(extra_args) do
+    module = ecto_schema_module(extra_args)
+    schema_path = Path.join(["lib" | module |> String.split(".") |> Enum.map(&Macro.underscore/1)])
+
+    Code.require_file("#{schema_path}.ex")
   end
 
   defp ecto_schema_module(extra_args) do
