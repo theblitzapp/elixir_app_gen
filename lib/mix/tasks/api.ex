@@ -6,8 +6,8 @@ defmodule Mix.Tasks.AppGen.Api do
 
   @shortdoc "Utilizes all the config files and generates a GraphQL API"
   @moduledoc """
-  Once you have a few resource config files created by
-  using the `mix app_gen.gen.resource` command, you can use
+  Once you have a resource config file created by
+  using the `mix app_gen.resource` command, you can use
   this command to generate all the api files for Absinthe
   """
 

@@ -3,7 +3,7 @@ defmodule Mix.Tasks.AppGen do
 
   alias Mix.AppGenHelpers
 
-  @shortdoc "Lists help for app_gen.gen. commands"
+  @shortdoc "Lists help for app_gen commands"
   @moduledoc AppGen.moduledoc()
 
   def run(_args) do

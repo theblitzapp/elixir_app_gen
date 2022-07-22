@@ -1,4 +1,28 @@
 defmodule Mix.Tasks.AppGen.Context do
+  @shortdoc "Creates a ecto schema that has a factory"
+  @moduledoc """
+  You can use this to create ecto schemas that come with a factory
+
+  ***Note: You must have [`factory_ex`](https://github.com/theblitzapp/factory_ex) installed to use this***
+
+  You can pass in the same arguments you would to `mix phx.gen.schema`
+
+  #### Example
+
+  ```bash
+  > mix app_gen.resource Accounts.User email:string name:string birthday:date
+  ```
+
+  ### Options
+  - `dirname` - The directory to generate the config files in
+  - `repo` - The repo to use for this generations
+  - `file_name` - The file name for the config
+  - `only` - Parts to generate (create, all, find, update, delete)
+  - `except` - Parts of the CRUD resource to exclude
+  - `context` - Context module if supplying `--from-ecto-schema`
+  - `from-ecto-schema` - Specify a specific module instead of generating a new schema
+  """
+
   use Mix.Task
 
   alias Mix.AppGenHelpers
@@ -23,6 +47,14 @@ defmodule Mix.Tasks.AppGen.Context do
       |> Enum.filter(fn {key, _} -> key === :ecto_schema end)
       |> Enum.map(fn {_, value} -> AppGenHelpers.string_to_module(value) end)
 
+    if Enum.empty?(ecto_schemas) do
+      raise to_string(IO.ANSI.format([
+        :red,
+        "No schemas provided to app_gen.context, you must provie at least one schema with --ecto-schemas",
+        :reset
+      ]))
+    end
+
     repo_str = if opts[:repo] do
       opts[:repo] |> AppGenHelpers.string_to_module |> inspect
     else
@@ -43,10 +75,6 @@ defmodule Mix.Tasks.AppGen.Context do
 
         unless opts[:no_tests] do
           generate_test_file(context, schemas, opts)
-        end
-
-        unless opts[:no_factories] do
-          generate_context_file(schemas, opts)
         end
       end)
   end

@@ -37,8 +37,15 @@ defmodule Mix.AppGenHelpers do
 
     rescue
       ArgumentError ->
-        raise IO.ANSI.red() <>
-              "Module #{module_string} doesn't exist" <>
-              IO.ANSI.reset()
+        raise to_string(IO.ANSI.format([
+          :red,
+          "Module ",
+          :bright,
+          module_string,
+          :reset,
+          :red,
+          " doesn't exist",
+          :reset
+        ]))
   end
 end
