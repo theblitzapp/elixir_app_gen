@@ -1,8 +1,8 @@
-defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
+defmodule Mix.Tasks.AppConfig.Gen.Resource do
   use Mix.Task
 
-  alias Mix.PhoenixConfigHelpers
-  alias PhoenixConfig.EctoContextGenerator
+  alias Mix.AppConfigHelpers
+  alias AppConfig.EctoContextGenerator
 
   @shortdoc "Creates a resource file that will be used to configure absinthe routes and can create schemas"
   @moduledoc """
@@ -15,7 +15,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
   #### Example
 
   ```bash
-  > mix phoenix_config.gen.resource --context MyApp.SomeContext --from-ecto-schema MyApp.SomeContext.Schema
+  > mix app_config.gen.resource --context MyApp.SomeContext --from-ecto-schema MyApp.SomeContext.Schema
   ```
 
   ### New Schema
@@ -24,7 +24,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
   #### Example
 
   ```bash
-  > mix phoenix_config.gen.resource Accounts.User email:string name:string birthday:date
+  > mix app_config.gen.resource Accounts.User email:string name:string birthday:date
   ```
 
   ### Options
@@ -38,7 +38,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
   """
 
   def run(args) do
-    PhoenixConfigHelpers.ensure_not_in_umbrella!("phoenix_config.gen.resource")
+    AppConfigHelpers.ensure_not_in_umbrella!("app_config.gen.resource")
 
     {opts, extra_args, _} = OptionParser.parse(args,
       switches: [
@@ -54,7 +54,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
 
     cond do
       !opts[:from_ecto_schema] and Enum.empty?(extra_args) ->
-        Mix.raise("Must provide a from_ecto_schema or create a schema for mix phoenix_config.gen.resource using the --from-ecto-schema flag")
+        Mix.raise("Must provide a from_ecto_schema or create a schema for mix app_config.gen.resource using the --from-ecto-schema flag")
 
       !opts[:repo] ->
         Mix.raise("Must provide a repo using the --repo flag")
@@ -73,23 +73,23 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
 
   defp create_and_write_resource_from_schema(opts) do
     from_ecto_schema = safe_concat_with_error([opts[:from_ecto_schema]])
-    config_file_path = PhoenixConfigHelpers.config_file_full_path(opts[:dirname], opts[:file_name])
+    config_file_path = AppConfigHelpers.config_file_full_path(opts[:dirname], opts[:file_name])
 
     if File.exists?(config_file_path) do
       contents = create_config_contents(from_ecto_schema, opts[:repo], opts[:only], opts[:except])
 
       # TODO: Inject this instead of forcing user to do this
-      Mix.shell.info("Make sure to merge the following with your phoenix_config.exs\n\n#{contents}")
+      Mix.shell.info("Make sure to merge the following with your app_config.exs\n\n#{contents}")
     else
       contents = create_config_contents(from_ecto_schema, opts[:repo], opts[:only], opts[:except])
 
-      PhoenixConfigHelpers.write_phoenix_config_file(opts[:dirname], opts[:file_name], contents)
+      AppConfigHelpers.write_app_config_file(opts[:dirname], opts[:file_name], contents)
     end
   end
 
   defp create_config_contents(schema_name, repo, nil, nil) do
     """
-    import PhoenixConfig, only: [crud_from_schema: 1]
+    import AppConfig, only: [crud_from_schema: 1]
 
     [
       crud_from_schema(#{inspect(schema_name)}),
@@ -103,7 +103,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Resource do
 
   defp create_config_contents(schema_name, repo, only, except) do
     """
-    import PhoenixConfig, only: [crud_from_schema: 2]
+    import AppConfig, only: [crud_from_schema: 2]
 
     [
       crud_from_schema(#{inspect(schema_name)}#{build_only(only) <> build_except(except)},

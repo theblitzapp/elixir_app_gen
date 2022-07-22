@@ -1,7 +1,7 @@
-defmodule PhoenixConfig.InputArguments.Required do
+defmodule AppConfig.InputArguments.Required do
   @moduledoc false
 
-  alias PhoenixConfig.InputArguments.Utils
+  alias AppConfig.InputArguments.Utils
 
   @mutation_actions AbsintheGenerator.CrudResource.mutation_crud_types()
 

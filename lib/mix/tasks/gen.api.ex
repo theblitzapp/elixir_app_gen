@@ -1,18 +1,18 @@
-defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
+defmodule Mix.Tasks.AppConfig.Gen.Api do
   use Mix.Task
 
-  alias Mix.PhoenixConfigHelpers
-  alias PhoenixConfig.{AbsintheTypeMerge, AbsintheSchemaBuilder}
+  alias Mix.AppConfigHelpers
+  alias AppConfig.{AbsintheTypeMerge, AbsintheSchemaBuilder}
 
   @shortdoc "Utilizes all the config files and generates a GraphQL API"
   @moduledoc """
   Once you have a few resource config files created by
-  using the `mix phoenix_config.gen.resource` command, you can use
+  using the `mix app_config.gen.resource` command, you can use
   this command to generate all the api files for Absinthe
   """
 
   def run(args) do
-    PhoenixConfigHelpers.ensure_not_in_umbrella!("phoenix_config.gen.api")
+    AppConfigHelpers.ensure_not_in_umbrella!("app_config.gen.api")
 
     {opts, _extra_args, _} = OptionParser.parse(args,
       switches: [
@@ -24,7 +24,7 @@ defmodule Mix.Tasks.PhoenixConfig.Gen.Api do
     )
 
     opts[:dirname]
-      |> PhoenixConfigHelpers.get_phoenix_config_file_path(opts[:file_name])
+      |> AppConfigHelpers.get_app_config_file_path(opts[:file_name])
       |> eval_config_file
       |> expand_crud_types
       |> pre_merge_types

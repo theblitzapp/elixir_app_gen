@@ -1,7 +1,7 @@
-defmodule PhoenixConfig.EctoSchemaReflector do
+defmodule AppConfig.EctoSchemaReflector do
   @moduledoc false
 
-  alias PhoenixConfig.{EctoUtils, AbsintheUtils}
+  alias AppConfig.{EctoUtils, AbsintheUtils}
 
   def schema_relationship_types(ecto_schemas) do
     schema_fields = Map.new(ecto_schemas, &{&1, resolve_all_relation_schema_fields(&1)})

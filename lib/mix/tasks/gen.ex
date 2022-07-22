@@ -1,14 +1,14 @@
-defmodule Mix.Tasks.PhoenixConfig.Gen do
+defmodule Mix.Tasks.AppConfig.Gen do
   use Mix.Task
 
-  alias Mix.PhoenixConfigHelpers
+  alias Mix.AppConfigHelpers
 
-  @shortdoc "Lists help for phoenix_config.gen. commands"
-  @moduledoc PhoenixConfig.moduledoc()
+  @shortdoc "Lists help for app_config.gen. commands"
+  @moduledoc AppConfig.moduledoc()
 
   def run(_args) do
-    PhoenixConfigHelpers.ensure_not_in_umbrella!("phoenix_config.gen")
+    AppConfigHelpers.ensure_not_in_umbrella!("app_config.gen")
 
-    Mix.Task.run("help", ["--search", "phoenix_config"])
+    Mix.Task.run("help", ["--search", "app_config"])
   end
 end

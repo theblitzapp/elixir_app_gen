@@ -1,9 +1,9 @@
-defmodule PhoenixConfig do
+defmodule AppConfig do
   @moduledoc """
   #{File.read!("./README.md")}
   """
 
-  alias PhoenixConfig.{
+  alias AppConfig.{
     AbsintheSchemaBuilder,
     AbsintheTypeMerge,
     EctoSchemaReflector,

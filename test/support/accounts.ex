@@ -1,3 +1,3 @@
-defmodule PhoenixConfig.Support.Accounts do
+defmodule AppConfig.Support.Accounts do
 
 end
