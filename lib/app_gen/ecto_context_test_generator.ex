@@ -12,18 +12,17 @@ defmodule AppGen.EctoContextTestGenerator do
     )
   end
 
-  def create_test_module_for_schemas(context_app, context_module, schemas) do
-    context_app_string = to_module_string(context_app)
+  def create_test_module_for_schemas(context_module, schemas) do
     context_module_string = to_module_string(context_module)
-    full_context_module = "#{context_app_string}.#{context_module_string}"
+    context_app_string = context_module_string |> String.split |> List.last
 
     Code.format_string!("""
-    defmodule #{full_context_module}Test do
+    defmodule #{context_module_string}Test do
       use #{context_app_string}.DataCase, async: true
 
-      alias #{full_context_module}.Support.Factory
+      alias #{context_module_string}.Support.Factory
 
-      alias #{full_context_module}
+      alias #{context_module_string}
 
       #{schemas
          |> Enum.map(&create_ecto_shorts_crud_tests(&1, context_module_string))

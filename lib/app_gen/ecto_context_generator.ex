@@ -8,7 +8,10 @@ defmodule AppGen.EctoContextGenerator do
 
     context_module = String.replace(context_module, ~r/^#{context_app_module}\./i, "")
 
-    Mix.Phoenix.context_lib_path(Mix.Phoenix.context_app(), "#{Macro.underscore(context_module)}.ex")
+    Mix.Phoenix.context_lib_path(
+      Mix.Phoenix.context_app(),
+      "#{Macro.underscore(context_module)}.ex"
+    )
   end
 
   def context_module(schema) when is_atom(schema) do
@@ -22,13 +25,11 @@ defmodule AppGen.EctoContextGenerator do
       |> Enum.join(".")
   end
 
-  def create_context_module_for_schemas(context_app, repo, context_module, schemas) do
-    context_app_string = to_module_string(context_app)
+  def create_context_module_for_schemas(repo, context_module, schemas) do
     context_module_string = to_module_string(context_module)
-    full_context_module = "#{context_app_string}.#{context_module_string}"
 
     Code.format_string!("""
-    defmodule #{full_context_module} do
+    defmodule #{context_module_string} do
       alias EctoShorts.Actions
 
       #{schemas |> Enum.map(&"alias #{inspect(&1)}") |> Enum.join("\n")}

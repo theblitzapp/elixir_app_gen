@@ -9,7 +9,7 @@ defmodule Mix.Tasks.AppGen.Context do
   `--repo` is a required flag for the ecto repo
 
   ```bash
-  > mix app_gen.context --repo MyApp.Repo --ecto-schema
+  > mix app_gen.context --repo MyApp.Repo --ecto-schema MyContext.MySchema
   ```
 
   ### Options
@@ -73,7 +73,6 @@ defmodule Mix.Tasks.AppGen.Context do
 
   defp generate_context_file(context, schemas, opts) do
     context_contents = EctoContextGenerator.create_context_module_for_schemas(
-      Mix.Phoenix.context_app(),
       opts[:repo],
       context,
       schemas
@@ -91,7 +90,6 @@ defmodule Mix.Tasks.AppGen.Context do
 
   defp generate_test_file(context, schemas, opts) do
     test_contents = EctoContextTestGenerator.create_test_module_for_schemas(
-      Mix.Phoenix.context_app(),
       context,
       schemas
     )
