@@ -56,8 +56,9 @@ defmodule Mix.Tasks.AppGen.Schema do
   end
 
   defp require_new_schema_file(extra_args) do
-    module = ecto_schema_module(extra_args)
-    schema_path = Path.join(["lib" | module |> String.split(".") |> Enum.map(&Macro.underscore/1)])
+    module = hd(extra_args)
+    context_app = to_string(Mix.Phoenix.context_app())
+    schema_path = Path.join(["..", context_app, "lib", context_app | module |> String.split(".") |> Enum.map(&Macro.underscore/1)])
 
     Code.require_file("#{schema_path}.ex")
   end
@@ -67,7 +68,7 @@ defmodule Mix.Tasks.AppGen.Schema do
       |> to_string
       |> Macro.camelize
 
-    "#{inspect(context_module)}.#{hd(extra_args)}"
+    "#{context_module}.#{hd(extra_args)}"
   end
 end
 
