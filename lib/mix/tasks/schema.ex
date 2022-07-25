@@ -10,7 +10,7 @@ defmodule Mix.Tasks.AppGen.Schema do
   #### Example
 
   ```bash
-  > mix app_gen.resource --repo MyApp.Repo Accounts.User email:string name:string birthday:date
+  > mix app_gen.schema --repo MyApp.Repo Accounts.User account_users email:string name:string birthday:date
   ```
 
   ### Options
@@ -63,7 +63,11 @@ defmodule Mix.Tasks.AppGen.Schema do
   end
 
   defp ecto_schema_module(extra_args) do
-    "#{AppGenHelpers.app_name()}.#{hd(extra_args)}"
+    context_module = Mix.Phoenix.context_app()
+      |> to_string
+      |> Macro.camelize
+
+    "#{inspect(context_module)}.#{hd(extra_args)}"
   end
 end
 
