@@ -69,7 +69,7 @@ defmodule AppGen.EctoContextTestGenerator do
         test "returns all #{pluralized_schema_name}" do
           #{pluralized_schema_name} = FactoryEx.insert_many!(#{Enum.random(4..15)}, Factory.#{schema_module})
 
-          assert {:ok, results} = #{context_module_string}.all_#{pluralized_schema_name}()
+          results = #{context_module_string}.all_#{pluralized_schema_name}()
 
           assert Enum.sort(results, &(&1.id)) === Enum.sort(#{pluralized_schema_name}, &(&1.id))
         end
@@ -78,7 +78,7 @@ defmodule AppGen.EctoContextTestGenerator do
           #{pluralized_schema_name} = FactoryEx.insert_many!(#{Enum.random(4..15)}, Factory.#{schema_module})
           ids = #{pluralized_schema_name} |> Enum.take(2) |> Enum.map(&(&1.id))
 
-          assert {:ok, results} = #{context_module_string}.all_#{pluralized_schema_name}(%{
+          results = #{context_module_string}.all_#{pluralized_schema_name}(%{
             id: ids
           })
 
@@ -95,7 +95,6 @@ defmodule AppGen.EctoContextTestGenerator do
           update_params = FactoryEx.build_params(Factory.#{schema_module})
 
           assert {:ok, updated_res} = #{context_module_string}.update_#{schema_name}(
-            #{schema_module},
             #{schema_name},
             update_params
           )
@@ -111,7 +110,6 @@ defmodule AppGen.EctoContextTestGenerator do
           })
 
           assert {:error, %Ecto.Changeset{valid?: false}} = #{context_module_string}.update_#{schema_name}(
-            #{schema_module},
             #{schema_name},
             new_params
           )
@@ -122,11 +120,7 @@ defmodule AppGen.EctoContextTestGenerator do
         test "removes a #{schema_name} when exists" do
           #{schema_name} = FactoryEx.insert!(Factory.#{schema_module})
 
-          assert {:ok, ^#{schema_name}} = #{context_module_string}.delete_#{schema_name}(
-            #{schema_module},
-            #{schema_name},
-            new_params
-          )
+          assert {:ok, ^#{schema_name}} = #{context_module_string}.delete_#{schema_name}(#{schema_name}.id)
         end
       end
     """

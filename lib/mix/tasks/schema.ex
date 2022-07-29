@@ -40,15 +40,18 @@ defmodule Mix.Tasks.AppGen.Schema do
 
       with :ok <- Mix.Tasks.Phx.Gen.Schema.run(extra_args) do
         require_new_schema_file(extra_args)
-
-        extra_args
-          |> ecto_schema_module
-          |> AppGenHelpers.string_to_module
-          |> Mix.Tasks.FactoryEx.Gen.generate_factory(opts[:repo], opts)
+        generate_factory(extra_args, opts)
       end
     else
       Mix.raise("Must provide a repo using the --repo flag")
     end
+  end
+
+  defp generate_factory(extra_args, opts) do
+    extra_args
+      |> ecto_schema_module
+      |> AppGenHelpers.string_to_module
+      |> Mix.Tasks.FactoryEx.Gen.generate_factory(opts[:repo], opts)
   end
 
   defp validate_repo!(repo) do
