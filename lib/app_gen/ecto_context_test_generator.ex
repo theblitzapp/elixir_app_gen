@@ -13,19 +13,19 @@ defmodule AppGen.EctoContextTestGenerator do
   end
 
   def create_test_module_for_schemas(context_module, schemas) do
-    context_module_string = to_module_string(context_module)
-    context_app_string = context_module_string |> String.split |> List.last
+    context_module_full = to_module_string(context_module)
+    [app_string | context_module] = String.split(context_module_full, ".")
 
     Code.format_string!("""
-    defmodule #{context_module_string}Test do
-      use #{context_app_string}.DataCase, async: true
+    defmodule #{context_module_full}Test do
+      use #{app_string}.DataCase, async: true
 
-      alias #{context_module_string}.Support.Factory
+      alias #{app_string}.Support.Factory
 
-      alias #{context_module_string}
+      alias #{context_module_full}
 
       #{schemas
-         |> Enum.map(&create_ecto_shorts_crud_tests(&1, context_module_string))
+         |> Enum.map(&create_ecto_shorts_crud_tests(&1, context_module))
          |> Enum.join("\n")}
     end
     """)
@@ -35,13 +35,15 @@ defmodule AppGen.EctoContextTestGenerator do
     schema_module = schema |> inspect |> Macro.camelize |> String.split(".") |> List.last
     schema_name = Macro.underscore(schema_module)
     pluralized_schema_name = Inflex.pluralize(to_string(schema_name))
+    factory_name = "Factory.#{context_module_string}.#{schema_module}"
+    IO.inspect schema
 
     """
       # #{schema_module} Tests
 
       describe "&create_#{schema_name}/1" do
         test "creates a module with proper required fields" do
-          params = FactoryEx.build(Factory.#{schema_module})
+          params = FactoryEx.build(#{factory_name})
 
           assert {:ok, result} = #{context_module_string}.create_#{schema_name}(params)
 
@@ -51,7 +53,7 @@ defmodule AppGen.EctoContextTestGenerator do
 
       describe "&find_#{schema_name}/1" do
         test "finds a #{schema_name} by id" do
-          #{schema_name} = FactoryEx.insert!(Factory.#{schema_module})
+          #{schema_name} = FactoryEx.insert!(#{factory_name})
 
           assert {:ok, ^#{schema_name}} = #{context_module_string}.find_#{schema_name}(%{
             id: #{schema_name}.id
@@ -67,7 +69,7 @@ defmodule AppGen.EctoContextTestGenerator do
 
       describe "&all_#{pluralized_schema_name}/1" do
         test "returns all #{pluralized_schema_name}" do
-          #{pluralized_schema_name} = FactoryEx.insert_many!(#{Enum.random(4..15)}, Factory.#{schema_module})
+          #{pluralized_schema_name} = FactoryEx.insert_many!(#{Enum.random(4..15)}, #{factory_name})
 
           results = #{context_module_string}.all_#{pluralized_schema_name}()
 
@@ -75,7 +77,7 @@ defmodule AppGen.EctoContextTestGenerator do
         end
 
         test "filters schema by field" do
-          #{pluralized_schema_name} = FactoryEx.insert_many!(#{Enum.random(4..15)}, Factory.#{schema_module})
+          #{pluralized_schema_name} = FactoryEx.insert_many!(#{Enum.random(4..15)}, #{factory_name})
           ids = #{pluralized_schema_name} |> Enum.take(2) |> Enum.map(&(&1.id))
 
           results = #{context_module_string}.all_#{pluralized_schema_name}(%{
@@ -91,8 +93,8 @@ defmodule AppGen.EctoContextTestGenerator do
 
       describe "&update_#{schema_name}/2" do
         test "updates a #{schema_name} when passed correct params" do
-          #{schema_name} = FactoryEx.insert!(Factory.#{schema_module})
-          update_params = FactoryEx.build_params(Factory.#{schema_module})
+          #{schema_name} = FactoryEx.insert!(#{factory_name})
+          update_params = FactoryEx.build_params(#{factory_name})
 
           assert {:ok, updated_res} = #{context_module_string}.update_#{schema_name}(
             #{schema_name},
@@ -103,22 +105,22 @@ defmodule AppGen.EctoContextTestGenerator do
         end
 
         test "returns an error when passed invalid params" do
-          #{schema_name} = FactoryEx.insert!(Factory.#{schema_module})
+          #{schema_name} = FactoryEx.insert!(#{factory_name})
           random_key = #{schema_name} |> Map.drop([:__meta__, :__struct__]) |> Map.keys() |> Enum.random
-          update_params = FactoryEx.build(Factory.#{schema_module}, %{
-            random_key => (if is_binary(schema_name), do: 1234, else: "1234")
+          update_params = FactoryEx.build(#{factory_name}, %{
+            random_key => (if (is_binary(#{schema_name})), do: 1234, else: "1234")
           })
 
           assert {:error, %Ecto.Changeset{valid?: false}} = #{context_module_string}.update_#{schema_name}(
             #{schema_name},
-            new_params
+            update_params
           )
         end
       end
 
       describe "&delete_#{schema_name}/1" do
         test "removes a #{schema_name} when exists" do
-          #{schema_name} = FactoryEx.insert!(Factory.#{schema_module})
+          #{schema_name} = FactoryEx.insert!(#{factory_name})
 
           assert {:ok, ^#{schema_name}} = #{context_module_string}.delete_#{schema_name}(#{schema_name}.id)
         end
@@ -128,8 +130,8 @@ defmodule AppGen.EctoContextTestGenerator do
 
       # describe "&find_and_upsert#{schema_name}/1" do
       #   test "returns a #{schema_name} when exists" do
-      #     #{schema_name} = FactoryEx.insert!(Factory.#{schema_module})
-      #     new_params = FactoryEx.build_params(Factory.#{schema_module})
+      #     #{schema_name} = FactoryEx.insert!(#{factory_name})
+      #     new_params = FactoryEx.build_params(#{factory_name})
 
       #     assert {:ok, updated_res} = #{context_module_string}.update_#{schema_name}(
       #       {schema_module},
@@ -141,8 +143,8 @@ defmodule AppGen.EctoContextTestGenerator do
       #   end
 
       #   test "creates a #{schema_name} when not exists" do
-      #     #{schema_name} = FactoryEx.insert!(Factory.#{schema_module})
-      #     new_params = FactoryEx.build_params(Factory.#{schema_module})
+      #     #{schema_name} = FactoryEx.insert!(Factory.#{context_module})
+      #     new_params = FactoryEx.build_params(Factory.#{context_module})
 
       #     assert {:ok, updated_res} = #{context_module_string}.update_#{schema_name}(
       #       {schema_module},

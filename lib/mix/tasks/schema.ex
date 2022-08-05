@@ -34,7 +34,6 @@ defmodule Mix.Tasks.AppGen.Schema do
       ]
     )
 
-
     if opts[:repo] do
       validate_repo!(opts[:repo])
 
@@ -48,6 +47,12 @@ defmodule Mix.Tasks.AppGen.Schema do
   end
 
   defp generate_factory(extra_args, opts) do
+    opts = Keyword.put_new(
+      opts,
+      :dirname,
+      (Mix.Phoenix.context_app() |> Mix.Phoenix.context_test_path("../support/factory/") |> Path.expand)
+    )
+
     extra_args
       |> ecto_schema_module
       |> AppGenHelpers.string_to_module

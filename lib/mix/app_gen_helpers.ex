@@ -21,11 +21,13 @@ defmodule Mix.AppGenHelpers do
   end
 
   def write_app_gen_file(dirname, file_name, contents, opts \\ []) do
-    Mix.Generator.create_file(
-      config_file_full_path(dirname, file_name),
-      contents,
-      opts
-    )
+    dirname
+      |> config_file_full_path(file_name)
+      |> Path.relative_to_cwd
+      |> Mix.Generator.create_file(
+        contents,
+        opts
+      )
   end
 
   def config_file_full_path(dirname, file_name) do
