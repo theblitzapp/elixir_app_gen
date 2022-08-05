@@ -147,7 +147,7 @@ defmodule Mix.Tasks.AppGen.Resource do
 
         context_module_path = Mix.Phoenix.context_lib_path(context_app, "#{Macro.underscore(context_module)}.ex")
 
-        if Mix.Generator.create_file(context_module_path, EctoContextGenerator.create_context_module_for_schemas(context_app_module, repo, context_module, [ecto_schema])) do
+        if Mix.Generator.create_file(context_module_path, EctoContextGenerator.create_context_module_for_schemas(repo, context_module, [ecto_schema])) do
           Code.compile_file(context_module_path)
 
           safe_concat_with_error(context_app_module, context_module)

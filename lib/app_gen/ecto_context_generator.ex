@@ -74,8 +74,8 @@ defmodule AppGen.EctoContextGenerator do
         Actions.delete(#{schema_module}, id_or_schema#{repo_opt})
       end
 
-      def find_and_update_or_create_#{schema_name}(params, update_params) do
-        Actions.find_and_update(#{schema_module}, params, update_params#{repo_opt})
+      def find_and_upsert_#{schema_name}(params, update_params) do
+        Actions.find_and_upsert(#{schema_module}, params, update_params#{repo_opt})
       end
     """
   end
