@@ -36,18 +36,18 @@ defmodule AppGen.EctoContextTestGenerator do
     schema_name = Macro.underscore(schema_module)
     pluralized_schema_name = Inflex.pluralize(to_string(schema_name))
     factory_name = "Factory.#{context_module_string}.#{schema_module}"
-    IO.inspect schema
 
     """
       # #{schema_module} Tests
 
       describe "&create_#{schema_name}/1" do
         test "creates a module with proper required fields" do
-          params = FactoryEx.build(#{factory_name})
+          params = FactoryEx.build_params(#{factory_name})
 
           assert {:ok, result} = #{context_module_string}.create_#{schema_name}(params)
 
-          assert Map.drop(result, [:__struct__, :__meta__]) === params
+          refute is_nil(result.id)
+          assert Map.take(result, Map.keys(params)) === params
         end
       end
 
@@ -73,7 +73,7 @@ defmodule AppGen.EctoContextTestGenerator do
 
           results = #{context_module_string}.all_#{pluralized_schema_name}()
 
-          assert Enum.sort(results, &(&1.id)) === Enum.sort(#{pluralized_schema_name}, &(&1.id))
+          assert Enum.sort_by(results, &(&1.id)) === Enum.sort_by(#{pluralized_schema_name}, &(&1.id))
         end
 
         test "filters schema by field" do
@@ -101,15 +101,12 @@ defmodule AppGen.EctoContextTestGenerator do
             update_params
           )
 
-          assert update_params === Map.take(updated_res, Map.keys(updated_res))
+          assert update_params === Map.take(updated_res, Map.keys(update_params))
         end
 
         test "returns an error when passed invalid params" do
           #{schema_name} = FactoryEx.insert!(#{factory_name})
-          random_key = #{schema_name} |> Map.drop([:__meta__, :__struct__]) |> Map.keys() |> Enum.random
-          update_params = FactoryEx.build(#{factory_name}, %{
-            random_key => (if (is_binary(#{schema_name})), do: 1234, else: "1234")
-          })
+          update_params = FactoryEx.build_invalid_params(#{factory_name})
 
           assert {:error, %Ecto.Changeset{valid?: false}} = #{context_module_string}.update_#{schema_name}(
             #{schema_name},
@@ -121,8 +118,11 @@ defmodule AppGen.EctoContextTestGenerator do
       describe "&delete_#{schema_name}/1" do
         test "removes a #{schema_name} when exists" do
           #{schema_name} = FactoryEx.insert!(#{factory_name})
+          id = #{schema_name}.id
 
-          assert {:ok, ^#{schema_name}} = #{context_module_string}.delete_#{schema_name}(#{schema_name}.id)
+          assert {:ok, %#{context_module_string}.#{schema_module}{
+            id: ^id
+          }} = #{context_module_string}.delete_#{schema_name}(#{schema_name}.id)
         end
       end
     """

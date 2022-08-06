@@ -43,15 +43,23 @@ defmodule AppGen.EctoContextGenerator do
 
   defp maybe_repo_module_attribute(nil), do: ""
   defp maybe_repo_module_attribute(repo) do
-    repo_underscore_name = repo |> String.split(".") |> List.last |> Macro.underscore
+    repo_name = repo_underscore_name(repo)
 
-    "@#{repo_underscore_name}_repo %{repo: #{repo}}"
+    if repo_name === "repo" do
+      "@repo [repo: #{repo}]"
+    else
+      "@#{repo_name}_repo [repo: #{repo}]"
+    end
   end
 
   defp create_ecto_shorts_crud_functions(schema, repo) do
     schema_module = schema |> inspect |> Macro.camelize |> String.split(".") |> List.last
     schema_name = Macro.underscore(schema_module)
-    repo_opt = if repo, do: ", @repo", else: ""
+    repo_opt = case repo_underscore_name(repo) do
+      "repo" -> ", @repo"
+      nil -> ""
+      repo -> ", @#{repo}_repo"
+    end
 
     """
       def create_#{schema_name}(params) do
@@ -78,6 +86,10 @@ defmodule AppGen.EctoContextGenerator do
         Actions.find_and_upsert(#{schema_module}, params, update_params#{repo_opt})
       end
     """
+  end
+
+  defp repo_underscore_name(repo) do
+    repo |> String.split(".") |> List.last |> Macro.underscore
   end
 
   def to_module_string(any) do

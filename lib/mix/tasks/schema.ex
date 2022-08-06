@@ -47,16 +47,14 @@ defmodule Mix.Tasks.AppGen.Schema do
   end
 
   defp generate_factory(extra_args, opts) do
-    opts = Keyword.put_new(
-      opts,
-      :dirname,
-      (Mix.Phoenix.context_app() |> Mix.Phoenix.context_test_path("../support/factory/") |> Path.expand)
-    )
+    opts = Keyword.put_new(opts, :app_name, to_string(Mix.Phoenix.context_app()))
 
     extra_args
       |> ecto_schema_module
       |> AppGenHelpers.string_to_module
       |> Mix.Tasks.FactoryEx.Gen.generate_factory(opts[:repo], opts)
+
+    Mix.Tasks.FactoryEx.Gen.ensure_schema_counter_start_added(opts)
   end
 
   defp validate_repo!(repo) do

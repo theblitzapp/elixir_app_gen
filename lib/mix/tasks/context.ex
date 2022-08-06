@@ -9,7 +9,7 @@ defmodule Mix.Tasks.AppGen.Context do
   `--repo` is a required flag for the ecto repo
 
   ```bash
-  > mix app_gen.context --repo MyApp.Repo --ecto-schema MyContext.MySchema
+  > mix app_gen.context --repo MyApp.Repo MyContext.MySchema
   ```
 
   ### Options
@@ -24,26 +24,22 @@ defmodule Mix.Tasks.AppGen.Context do
   def run(args) do
     AppGenHelpers.ensure_not_in_umbrella!("app_gen.gen.context")
 
-    {opts, _extra_args, _} = OptionParser.parse(args,
+    {opts, extra_args, _} = OptionParser.parse(args,
       switches: [
         no_tests: :boolean,
         no_contexts: :boolean,
         force: :boolean,
         quiet: :boolean,
-        repo: :string,
-        ecto_schema: :keep
+        repo: :string
       ]
     )
 
-    ecto_schemas = opts
-      |> Enum.filter(fn {key, _} -> key === :ecto_schema end)
-      |> Enum.map(fn {_, value} -> AppGenHelpers.string_to_module(value) end)
+    ecto_schemas = Enum.map(extra_args, &AppGenHelpers.string_to_module/1)
 
     if Enum.empty?(ecto_schemas) do
       raise to_string(IO.ANSI.format([
-        :red,
-        "No schemas provided to app_gen.context, you must provie at least one schema with --ecto-schemas",
-        :reset
+        :red, "No schemas provided to ", :bright, "app_gen.context", :reset,
+        :red, ", you must provide at least one", :reset
       ]))
     end
 
