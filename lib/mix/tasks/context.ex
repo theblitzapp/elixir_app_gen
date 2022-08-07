@@ -11,9 +11,6 @@ defmodule Mix.Tasks.AppGen.Context do
   ```bash
   > mix app_gen.context --repo MyApp.Repo MyContext.MySchema
   ```
-
-  ### Options
-  - `ecto-schema` - Specify a specific module instead of generating a new schema
   """
 
   use Mix.Task
@@ -54,6 +51,10 @@ defmodule Mix.Tasks.AppGen.Context do
       :green, " for schemas ", :bright, "#{ecto_schemas |> Enum.map(&inspect/1) |> Enum.join(", ")}"
     ], true))
 
+    generate_files_from_schemas(ecto_schemas, opts)
+  end
+
+  def generate_files_from_schemas(ecto_schemas, opts) do
     ecto_schemas
       |> Enum.group_by(&EctoContextGenerator.context_module/1)
       |> Enum.each(fn {context, schemas} ->

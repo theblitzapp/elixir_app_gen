@@ -34,20 +34,29 @@ defmodule Mix.AppGenHelpers do
     Path.join(dirname || default_config_directory(), file_name || default_config_file_name())
   end
 
-  def string_to_module(module_string) do
-    Module.safe_concat([module_string])
+  def string_to_module(module_a, module_b) do
+    string_to_module([module_a, module_b])
+  end
+
+  def string_to_module(module) when is_binary(module) do
+    string_to_module([module])
+  end
+
+  def string_to_module(modules) do
+    Module.safe_concat(modules)
 
     rescue
       ArgumentError ->
-        raise to_string(IO.ANSI.format([
-          :red,
-          "Module ",
-          :bright,
-          module_string,
-          :reset,
-          :red,
-          " doesn't exist",
-          :reset
-        ]))
+        Mix.raise("Module #{Enum.join(modules, ".")} cannot be found in your application")
+  end
+
+  def gather_keep_opts(opts) do
+    Enum.reduce(opts, [], fn {key, value}, acc ->
+      Keyword.update(acc, key, value, fn
+        list when is_list(list) -> list ++ [value]
+        item -> [item, value]
+      end)
+    end)
   end
 end
+

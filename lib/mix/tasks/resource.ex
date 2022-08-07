@@ -2,29 +2,21 @@ defmodule Mix.Tasks.AppGen.Resource do
   use Mix.Task
 
   alias Mix.AppGenHelpers
-  alias AppGen.EctoContextGenerator
 
   @shortdoc "Used to create app_gen.exs files or to add new CRUD resources in"
   @moduledoc """
-  You can use this to create all resources needed for a GraphQL API
+  Used to create app_gen.exs
+  You can also use this to create contexts and add crud_for_schema into app_gen.exs
 
-  ### Existing Schema
-  If you have an existing schema, you can use the `--from-ecto-schema` flag with the `--context` flag
-  to generate a config file for that specific flle
-
-  #### Example
-
-  ```bash
-  > mix app_gen.gen.resource --context MyApp.SomeContext --from-ecto-schema MyApp.SomeContext.Schema
-  ```
-
-  ### New Schema
-  If you're creating a new schema, you can pass in the same arguments you would to `mix phx.gen.schema`
+  This assumes contexts are the level up from the module, for
+  example `MyApp.MyModule.Context.Schema` or `MyApp.Context.Schema`
 
   #### Example
 
   ```bash
-  > mix app_gen.gen.resource Accounts.User email:string name:string birthday:date
+  > mix app_gen.resource --repo MyApp.Repo MyApp.SomeContext.{Schema,SecondSchema}
+  > mix app_gen.resource --repo MyApp.Repo --only create,read,update MyApp.SomeContext.{Schema,SecondSchema}
+  > mix app_gen.resource --repo MyApp.Repo --only create --only MyApp.SomeContext.{Schema,SecondSchema}
   ```
 
   ### Options
@@ -33,137 +25,119 @@ defmodule Mix.Tasks.AppGen.Resource do
   - `file_name` - The file name for the config
   - `only` - Parts to generate (create, all, find, update, delete)
   - `except` - Parts of the CRUD resource to exclude
-  - `context` - Context module if supplying `--from-ecto-schema`
-  - `from-ecto-schema` - Specify a specific module instead of generating a new schema
   """
 
   def run(args) do
-    AppGenHelpers.ensure_not_in_umbrella!("app_gen.gen.resource")
+    AppGenHelpers.ensure_not_in_umbrella!("app_gen.resource")
 
-    {opts, extra_args, _} = OptionParser.parse(args,
+    {opts, ecto_schema_strings, _} = OptionParser.parse(args,
       switches: [
         dirname: :string,
         file_name: :string,
         only: :keep,
         repo: :string,
-        except: :keep,
-        context: :string,
-        from_ecto_schema: :string
+        except: :keep
       ]
     )
 
+    opts = AppGenHelpers.gather_keep_opts(opts)
+
     cond do
-      !opts[:from_ecto_schema] and Enum.empty?(extra_args) ->
-        Mix.raise("Must provide a from_ecto_schema or create a schema for mix app_gen.gen.resource using the --from-ecto-schema flag")
+      Enum.empty?(ecto_schema_strings) ->
+        Mix.raise("Must provide schemas for mix app_gen.resource")
 
       !opts[:repo] ->
-        Mix.raise("Must provide a repo using the --repo flag")
+        Mix.raise(["Must provide a repo using the", :bright, " --repo ", :reset, :red, "flag"])
 
-      opts[:from_ecto_schema] ->
-        create_and_write_resource_from_schema(opts)
-
-      extra_args ->
-        ecto_schema = create_schema_from_args(opts[:repo], extra_args)
+      true ->
+        ensure_context_modules_created(Mix.Phoenix.context_app(), ecto_schema_strings, opts)
 
         opts
-          |> Keyword.merge(from_ecto_schema: ecto_schema)
+          |> Keyword.merge(ecto_schemas: ecto_schema_strings)
           |> create_and_write_resource_from_schema
     end
   end
 
   defp create_and_write_resource_from_schema(opts) do
-    from_ecto_schema = safe_concat_with_error([opts[:from_ecto_schema]])
+    ecto_schemas = Enum.map(opts[:ecto_schemas], &AppGenHelpers.string_to_module/1)
     config_file_path = AppGenHelpers.config_file_full_path(opts[:dirname], opts[:file_name])
 
     if File.exists?(config_file_path) do
-      contents = create_config_contents(from_ecto_schema, opts[:repo], opts[:only], opts[:except])
+      contents = create_config_contents(ecto_schemas, opts[:repo], opts[:only], opts[:except])
 
-      # TODO: Inject this instead of forcing user to do this
-      Mix.shell.info("Make sure to merge the following with your app_gen.exs\n\n#{contents}")
+      Mix.shell().info("Make sure to merge the following into app_gen.exs\n#{contents}")
     else
-      contents = create_config_contents(from_ecto_schema, opts[:repo], opts[:only], opts[:except])
+      contents = create_config_contents(ecto_schemas, opts[:repo], opts[:only], opts[:except])
 
       AppGenHelpers.write_app_gen_file(opts[:dirname], opts[:file_name], contents)
     end
   end
 
-  defp create_config_contents(schema_name, repo, nil, nil) do
-    """
-    import AppGen, only: [crud_from_schema: 1]
+  defp create_config_contents(ecto_schemas, repo, only, except) do
+    schema_strings = Enum.map(ecto_schemas, &inspect/1)
 
-    [
-      crud_from_schema(#{inspect(schema_name)}),
-
-      repo_schemas(#{inspect(repo)}, [
-        #{inspect(schema_name)}
-      ])
-    ]
-    """
-  end
-
-  defp create_config_contents(schema_name, repo, only, except) do
     """
     import AppGen, only: [crud_from_schema: 2]
 
     [
-      crud_from_schema(#{inspect(schema_name)}#{build_only(only) <> build_except(except)},
+      #{crud_schema_strings(schema_strings, only, except)},
 
-      repo_schemas(#{inspect(repo)}, [
-        #{inspect(schema_name)}
+      repo_schemas(#{repo}, [
+        #{Enum.join(schema_strings, ",\n")}
       ])
     ]
     """
   end
 
+  defp crud_schema_strings(ecto_schemas, only, except) do
+    ecto_schemas
+      |> Enum.map(&"crud_from_schema(#{&1}#{build_only(only) <> build_except(except)})")
+      |> Enum.join(",\n")
+  end
+
   defp build_only(nil), do: ""
-  defp build_only(only), do: ", only: #{inspect(only)}"
+  defp build_only(only), do: ", only: #{inspect(list_of_string_to_atoms(only))}"
 
   defp build_except(nil), do: ""
-  defp build_except(except), do: ", except: #{inspect(except)}"
+  defp build_except(except), do: ", except: #{inspect(list_of_string_to_atoms(except))}"
 
-  defp create_schema_from_args(repo, extra_args) do
-    with :ok <- Mix.Tasks.Phx.Gen.Schema.run(extra_args) do
-      context_app = Mix.Phoenix.context_app() |> to_string |> Macro.camelize
-
-      schema_module = hd(extra_args)
-      context_module = context_module_from_schema_module(schema_module)
-      ecto_schema = safe_concat_with_error(context_app, schema_module)
-
-      ensure_context_module_created(Mix.Phoenix.context_app(), repo, context_module, ecto_schema)
-
-      inspect(ecto_schema)
-    end
-  end
-
-  defp ensure_context_module_created(context_app, repo, context_module, ecto_schema) do
+  defp ensure_context_modules_created(context_app, ecto_schema_strings, opts) do
     context_app_module = context_app |> to_string |> Macro.camelize
-    Module.safe_concat(context_app_module, context_module)
 
-    rescue
-      ArgumentError ->
-        context_app_module = context_app |> to_string |> Macro.camelize
-
-        Mix.shell().info("No context found for schema at #{context_app_module}.#{context_module}, creating...")
-
-        context_module_path = Mix.Phoenix.context_lib_path(context_app, "#{Macro.underscore(context_module)}.ex")
-
-        if Mix.Generator.create_file(context_module_path, EctoContextGenerator.create_context_module_for_schemas(repo, context_module, [ecto_schema])) do
-          Code.compile_file(context_module_path)
-
-          safe_concat_with_error(context_app_module, context_module)
+    ecto_schema_strings
+      |> Enum.group_by(&context_module_from_schema_module/1)
+      |> Enum.map(fn {context, schemas} ->
+        if String.starts_with?(context, "#{context_app_module}.") do
+          {context, schemas}
+        else
+          {"#{context_app_module}.#{context}", schemas}
         end
+      end)
+      |> Enum.each(&ensure_context_module_create(context_app_module, &1, opts))
   end
 
-  defp safe_concat_with_error(module_a, module_b) do
-    safe_concat_with_error([module_a, module_b])
-  end
-
-  defp safe_concat_with_error(modules) do
-    Module.safe_concat(modules)
+  defp ensure_context_module_create(context_app_module, {context, ecto_schemas}, opts) do
+    Module.safe_concat([context])
 
     rescue
       ArgumentError ->
-        Mix.raise("Module #{Enum.join(modules, ".")} cannot be found in your application, please ensure you have the right modules passed in")
+        Mix.shell().info("No context #{context}, creating...")
+
+        ecto_schemas
+          |> maybe_strip_app_module(context_app_module)
+          |> Mix.Tasks.AppGen.Context.generate_files_from_schemas(opts)
+
+        AppGenHelpers.string_to_module(context_app_module, context)
+  end
+
+  defp maybe_strip_app_module(ecto_schemas, context_app_module) do
+    Enum.map(ecto_schemas, fn schema ->
+      if String.starts_with?(schema, "#{context_app_module}.") do
+        String.replace_leading(schema, "#{context_app_module}.", "")
+      else
+        schema
+      end
+    end)
   end
 
   defp context_module_from_schema_module(schema_module) do
@@ -171,6 +145,20 @@ defmodule Mix.Tasks.AppGen.Resource do
       [item] -> item
       schema_parts -> schema_parts |> Enum.drop(-1) |> Enum.join(".")
     end
+  end
+
+  defp list_of_string_to_atoms(string) when is_binary(string) do
+    list_of_string_to_atoms([string])
+  end
+
+  defp list_of_string_to_atoms(strings) do
+    Enum.flat_map(strings, fn string ->
+      if string =~ "," do
+        string |> String.split(",") |> Enum.map(&String.to_atom/1)
+      else
+        [String.to_atom(string)]
+      end
+    end)
   end
 end
 
