@@ -2,7 +2,7 @@ defmodule Mix.Tasks.AppGen.Api do
   use Mix.Task
 
   alias Mix.AppGenHelpers
-  alias AppGen.{AbsintheTypeMerge, AbsintheSchemaBuilder}
+  alias AppGen.ConfigState
 
   @shortdoc "Utilizes all the config files and generates a GraphQL API"
   @moduledoc """
@@ -25,43 +25,9 @@ defmodule Mix.Tasks.AppGen.Api do
 
     opts[:dirname]
       |> AppGenHelpers.get_app_gen_file_path(opts[:file_name])
-      |> eval_config_file
-      |> expand_crud_types
-      |> pre_merge_types
-      |> AbsintheSchemaBuilder.generate
-      |> run_config_functions
-      |> AbsintheTypeMerge.maybe_merge_types
+      |> ConfigState.parse_and_expand
       |> generate_templates
       |> write_generated_templates(Keyword.take(opts, [:force, :quiet]))
-  end
-
-  defp pre_merge_types(generation_items) do
-    {functions, generation_structs} = Enum.split_with(generation_items, &is_function/1)
-
-    AbsintheTypeMerge.maybe_merge_types(generation_structs) ++ functions
-  end
-
-  defp expand_crud_types(generation_items) do
-    Enum.flat_map(generation_items, fn
-      %AbsintheGenerator.CrudResource{} = generation_item ->
-        generation_item |> AbsintheGenerator.CrudResource.run |> Enum.map(&elem(&1, 0))
-
-      generation_item -> [generation_item]
-    end)
-  end
-
-  defp eval_config_file(file_path) do
-    {resources, _} = Code.eval_file(file_path)
-
-    List.flatten(resources)
-  end
-
-  defp run_config_functions(generation_items) do
-    {config_functions, generation_structs} = Enum.split_with(generation_items, &is_function/1)
-
-    Enum.reduce(config_functions, generation_structs, fn func, items_acc ->
-      func.(items_acc)
-    end)
   end
 
   defp generate_templates(generation_structs) do
