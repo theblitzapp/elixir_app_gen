@@ -11,7 +11,8 @@ defmodule AppGen.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       docs: docs(),
-      package: package()
+      package: package(),
+      xref: [exclude: [Mix.Tasks.Phx.New]]
     ]
   end
 
@@ -25,13 +26,15 @@ defmodule AppGen.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:absinthe_generator, github: "mikaak/absinthe_generator"},
+      {:absinthe_generator, "~> 0.1"},
+      {:factory_ex, "~> 0.2"},
 
       {:phoenix, "~> 1.5"},
       {:jason, "~> 1.3"},
-      {:factory_ex, github: "theblitzapp/factory_ex"},
       {:ecto, "~> 3.0"},
-      {:ecto_shorts, ">= 1.0.0"}
+      {:ecto_shorts, ">= 1.0.0"},
+
+      {:nimble_parsec, "~> 1.1"}
     ]
   end
 
