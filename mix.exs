@@ -34,7 +34,9 @@ defmodule AppGen.MixProject do
       {:ecto, "~> 3.0"},
       {:ecto_shorts, ">= 1.0.0"},
 
-      {:nimble_parsec, "~> 1.1"}
+      {:nimble_parsec, "~> 1.1"},
+
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 
@@ -47,7 +49,7 @@ defmodule AppGen.MixProject do
       maintainers: ["Mika Kalathil", "theblitzapp"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/theblitzapp/app_gen"},
-      files: ~w(mix.exs README.md CHANGELOG.md LICENSE lib priv)
+      files: ~w(mix.exs README.md CHANGELOG.md LICENSE lib)
     ]
   end
 
