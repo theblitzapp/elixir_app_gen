@@ -12,6 +12,7 @@ This tool generates various parts of our elixir applications to simplify our wor
   - [x] `no_phx` - Skip phx.new generation (back-add this to already generated project)
   - [x] `absinthe` - Pulls in absinthe dependency and sets it up in `router.ex` & `endpoint.ex`
   - [ ] `no_prometheus` - By default prometheus and exporter config will be setup with basic metrics
+  - [ ] `no_sentry` - By default prometheus and exporter config will be setup with basic metrics
   - [ ] `no_libcluster` - By default libcluster setup will be installed and dependency imported
   - [ ] `no_config_mod` - By default a config.ex module will be installed to gatekeep access to app env config
   - [ ] `no_cors` - By default [Corsica](https://github.com/whatyouhide/corsica) is installed into the `endpoint.exs`
