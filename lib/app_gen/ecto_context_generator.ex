@@ -62,28 +62,34 @@ defmodule AppGen.EctoContextGenerator do
     end
 
     """
+      @spec create_#{schema_name}(map) :: EctoShorts.Actions.schema_res()
       def create_#{schema_name}(params) do
         Actions.create(#{schema_module}, params#{repo_opt})
       end
 
+      @spec find_#{schema_name}(map) :: EctoShorts.Actions.schema_res()
       def find_#{schema_name}(params) do
         Actions.find(#{schema_module}, params#{repo_opt})
       end
 
+      @spec all_#{Inflex.pluralize(to_string(schema_name))}(map) :: list(EctoSchema.t()) | {:error, ErrorMessage.t()}
       def all_#{Inflex.pluralize(to_string(schema_name))}(params #{"\\"}#{"\\"} %{}) do
         Actions.all(#{schema_module}, params#{repo_opt})
       end
 
+      @spec update_#{schema_name}(pos_integer() || String.t() || Ecto.Schema.t(), map) :: EctoShorts.Actions.schema_res()
       def update_#{schema_name}(id_or_schema, params) do
         Actions.update(#{schema_module}, id_or_schema, params#{repo_opt})
       end
 
+      @spec delete_#{schema_name}(pos_integer() || String.t() || Ecto.Schema.t()) :: EctoShorts.Actions.schema_res()
       def delete_#{schema_name}(id_or_schema) do
         Actions.delete(#{schema_module}, id_or_schema#{repo_opt})
       end
 
-      def find_and_upsert_#{schema_name}(params, update_params) do
-        Actions.find_and_upsert(#{schema_module}, params, update_params#{repo_opt})
+      @spec find_and_upsert_#{schema_name}(map, map) :: EctoShorts.Actions.schema_res()
+      def find_and_upsert_#{schema_name}(find_params, update_params) do
+        Actions.find_and_upsert(#{schema_module}, find_params, update_params#{repo_opt})
       end
     """
   end

@@ -7,6 +7,7 @@ This tool generates various parts of our elixir applications to simplify our wor
 - [x] Ecto Schema
 - [x] Ecto Context, Factories & Tests
 - [x] State Diff and Regeneration
+- [ ] Typespecs for all files
 - [ ] Phoenix Application++ (prometheus/sentry)
 - [ ] State Transitions
 - [ ] Logic Nodes
@@ -37,4 +38,5 @@ mix app_gen.api      # Utilizes all the config files and generates a GraphQL API
 mix app_gen.context  # Creates a ecto context with functions from EctoShorts as well as tests
 mix app_gen.resource # Used to create app_gen.exs files or to add new CRUD resources in
 mix app_gen.schema   # Creates a ecto schema that has a factory
+mix app_gen.phx.new  # Create a new phx project, replaces `mix phx.new`
 ```
