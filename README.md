@@ -6,7 +6,7 @@ This tool generates various parts of our elixir applications to simplify our wor
 - [x] Absinthe API & Tests
 - [x] Ecto Schema
 - [x] Ecto Context, Factories & Tests
-- [ ] State Diff and Regeneration
+- [x] State Diff and Regeneration
 - [ ] Phoenix Application++ (prometheus/sentry)
 - [ ] State Transitions
 - [ ] Logic Nodes
