@@ -23,11 +23,20 @@ defmodule Mix.Tasks.AppGen.Api do
       ]
     )
 
-    opts[:dirname]
+    generator_structs = opts[:dirname]
       |> AppGenHelpers.get_app_gen_file_path(opts[:file_name])
       |> ConfigState.parse_and_expand
-      |> generate_templates
-      |> write_generated_templates(Keyword.take(opts, [:force, :quiet]))
+
+    different_generator_structs = ConfigState.diff_and_save(generator_structs)
+
+    case different_generator_structs do
+      [] when generator_structs !== [] -> Mix.raise("No new generator structs found to generate since last generation")
+      [] -> Mix.raise("No generator structs found to generate")
+      structs ->
+        structs
+          |> generate_templates
+          |> write_generated_templates(Keyword.take(opts, [:force, :quiet]))
+    end
   end
 
   defp generate_templates(generation_structs) do

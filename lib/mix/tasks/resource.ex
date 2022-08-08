@@ -75,15 +75,16 @@ defmodule Mix.Tasks.AppGen.Resource do
 
   defp create_config_contents(ecto_schemas, repo, only, except) do
     schema_strings = Enum.map(ecto_schemas, &inspect/1)
+    contexts = ecto_schemas |> Enum.map(&context_module_from_schema_module/1) |> Enum.uniq
 
     """
-    import AppGen, only: [crud_from_schema: 2]
+    import AppGen, only: [crud_from_schema: 2, repo_contexts: 2]
 
     [
       #{crud_schema_strings(schema_strings, only, except)},
 
-      repo_schemas(#{repo}, [
-        #{Enum.join(schema_strings, ",\n")}
+      repo_contexts(#{repo}, [
+        #{Enum.join(contexts, ",\n")}
       ])
     ]
     """
@@ -140,8 +141,12 @@ defmodule Mix.Tasks.AppGen.Resource do
     end)
   end
 
+  defp context_module_from_schema_module(schema_module) when is_atom(schema_module) do
+    schema_module |> inspect |> context_module_from_schema_module
+  end
+
   defp context_module_from_schema_module(schema_module) do
-    case schema_module |> to_string |> String.split(".") do
+    case String.split(schema_module, ".") do
       [item] -> item
       schema_parts -> schema_parts |> Enum.drop(-1) |> Enum.join(".")
     end
