@@ -29,7 +29,7 @@ by adding `app_gen` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:app_gen, "~> 0.1.0"}
+    {:app_gen, "~> 0.1.0", only: [:dev, :test]}
   ]
 end
 ```
