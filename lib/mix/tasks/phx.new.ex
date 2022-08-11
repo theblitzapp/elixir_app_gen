@@ -1,8 +1,13 @@
 defmodule Mix.Tasks.AppGen.Phx.New do
+  doc = case Code.fetch_docs(Mix.Tasks.Phx.New) do
+    {_, _, _, _, %{"en" => doc}, _, _} -> String.replace(doc, "phx.new", "app_gen.phx.new")
+    _ -> "Phoenix not istalled, please make sure you can run `mix phx.install` before using this command"
+  end
+
   @shortdoc "Creates a prod ready phoenix app, can supply all the same parameters as mix phx.new"
   @moduledoc """
   ## Phoenix Docs
-  #{{_, _, _, _, %{"en" => doc}, _, _} = Code.fetch_docs(Mix.Tasks.Phx.New); String.replace(doc, "phx.new", "app_gen.phx.new")}
+  #{doc}
 
   ## mix app_gen.phx.new
 
