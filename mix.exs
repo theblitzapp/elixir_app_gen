@@ -4,7 +4,7 @@ defmodule AppGen.MixProject do
   def project do
     [
       app: :app_gen,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.12",
       description: "Config as code generation for phoenix applications, don't write apps, generate them",
       start_permanent: Mix.env() == :prod,
