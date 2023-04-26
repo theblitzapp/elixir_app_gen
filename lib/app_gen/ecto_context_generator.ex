@@ -52,8 +52,12 @@ defmodule AppGen.EctoContextGenerator do
     end
   end
 
+  defp create_ecto_shorts_crud_functions(schema, repo) when is_atom(schema) do
+    create_ecto_shorts_crud_functions(inspect(schemas), repo)
+  end
+
   defp create_ecto_shorts_crud_functions(schema, repo) do
-    schema_module = schema |> inspect |> Macro.camelize |> String.split(".") |> List.last
+    schema_module = schema |> Macro.camelize |> String.split(".") |> List.last
     schema_name = Macro.underscore(schema_module)
     repo_opt = case repo_underscore_name(repo) do
       "repo" -> ", @repo"
