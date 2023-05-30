@@ -53,7 +53,7 @@ defmodule AppGen.EctoContextGenerator do
   end
 
   defp create_ecto_shorts_crud_functions(schema, repo) when is_atom(schema) do
-    create_ecto_shorts_crud_functions(inspect(schemas), repo)
+    create_ecto_shorts_crud_functions(inspect(schema), repo)
   end
 
   defp create_ecto_shorts_crud_functions(schema, repo) do
