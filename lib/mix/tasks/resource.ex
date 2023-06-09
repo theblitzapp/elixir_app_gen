@@ -92,9 +92,11 @@ defmodule Mix.Tasks.AppGen.Resource do
   end
 
   defp crud_schema_strings(ecto_schemas, only, except) do
-    ecto_schemas
-    |> Enum.map(&"crud_from_schema(#{&1}#{build_only(only) <> build_except(except)})")
-    |> Enum.join(",\n")
+    Enum.map_join(
+      ecto_schemas,
+      ",\n",
+      &"crud_from_schema(#{&1}#{build_only(only) <> build_except(except)})"
+    )
   end
 
   defp build_only(nil), do: ""

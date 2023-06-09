@@ -98,25 +98,27 @@ defmodule AppGen.EctoSchemaReflector do
     ArgumentError ->
       ecto_context = ecto_schema |> Module.split() |> Enum.drop(-1) |> Enum.join(".")
 
-      raise to_string(
-              IO.ANSI.format(
-                [
-                  :red,
-                  "Context module ",
-                  :bright,
-                  inspect(ecto_context),
-                  :reset,
-                  :red,
-                  " for schema ",
-                  :bright,
-                  inspect(ecto_schema),
-                  :reset,
-                  :red,
-                  " doesn't exist"
-                ],
-                true
-              )
-            )
+      raise(
+        to_string(
+          IO.ANSI.format(
+            [
+              :red,
+              "Context module ",
+              :bright,
+              inspect(ecto_context),
+              :reset,
+              :red,
+              " for schema ",
+              :bright,
+              inspect(ecto_schema),
+              :reset,
+              :red,
+              " doesn't exist"
+            ],
+            true
+          )
+        )
+      )
   end
 
   defp module_name(module) do

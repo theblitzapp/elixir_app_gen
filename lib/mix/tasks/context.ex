@@ -67,7 +67,7 @@ defmodule Mix.Tasks.AppGen.Context do
           :green,
           " for schemas ",
           :bright,
-          "#{ecto_schemas |> Enum.map(&inspect/1) |> Enum.join(", ")}"
+          "#{Enum.map_join(ecto_schemas, ", ", &inspect/1)}"
         ],
         true
       )

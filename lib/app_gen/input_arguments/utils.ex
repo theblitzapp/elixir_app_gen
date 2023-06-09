@@ -63,12 +63,7 @@ defmodule AppGen.InputArguments.Utils do
 
         absinthe_generator_structs
 
-      index ->
-        if is_struct(Enum.at(absinthe_generator_structs, index), AbsintheGenerator.Mutation) do
-          require IEx
-          IEx.pry()
-        end
-
+      index when is_integer(index) ->
         update_in(
           absinthe_generator_structs,
           [Access.at!(index)],
