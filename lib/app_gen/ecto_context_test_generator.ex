@@ -25,7 +25,7 @@ defmodule AppGen.EctoContextTestGenerator do
 
       alias #{context_module_full}
 
-      #{schemas |> Enum.map(&create_ecto_shorts_crud_tests(&1, context_module)) |> Enum.join("\n")}
+      #{Enum.map_join(schemas, "\n", &create_ecto_shorts_crud_tests(&1, context_module))}
     end
     """)
   end

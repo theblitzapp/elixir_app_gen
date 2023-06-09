@@ -33,11 +33,11 @@ defmodule AppGen.EctoContextGenerator do
     defmodule #{context_module_string} do
       alias EctoShorts.Actions
 
-      #{schemas |> Enum.map(&"alias #{inspect(&1)}") |> Enum.join("\n")}
+      #{Enum.map_join(schemas, "\n", &"alias #{inspect(&1)}")}
 
       #{maybe_repo_module_attribute(repo)}
 
-      #{schemas |> Enum.map(&create_ecto_shorts_crud_functions(&1, repo)) |> Enum.join("\n")}
+      #{Enum.map_join(schemas, "\n", &create_ecto_shorts_crud_functions(&1, repo))}
     end
     """)
   end
