@@ -8,17 +8,14 @@ defmodule AppGen.Support.Accounts.Label do
   alias AppGen.Support.Accounts.Label
 
   schema "account_labels" do
-    field :label, :string
+    field(:label, :string)
   end
 
   @required_params [:label]
 
   def changeset(%Label{} = user, attrs \\ %{}) do
     user
-      |> cast(attrs, @required_params)
-      |> validate_required(@required_params)
+    |> cast(attrs, @required_params)
+    |> validate_required(@required_params)
   end
 end
-
-
-

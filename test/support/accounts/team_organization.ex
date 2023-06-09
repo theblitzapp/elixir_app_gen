@@ -8,18 +8,16 @@ defmodule AppGen.Support.Accounts.TeamOrganization do
   alias AppGen.Support.Accounts.{Team, TeamOrganization}
 
   schema "team_organizations" do
-    field :name, :string
+    field(:name, :string)
 
-    has_many :team, Team
+    has_many(:team, Team)
   end
 
   @required_params [:name]
 
   def changeset(%TeamOrganization{} = user, attrs \\ %{}) do
     user
-      |> cast(attrs, @required_params)
-      |> validate_required(@required_params)
+    |> cast(attrs, @required_params)
+    |> validate_required(@required_params)
   end
 end
-
-

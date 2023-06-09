@@ -28,7 +28,8 @@ defmodule AppGen.InputArguments.RelationInputs do
     end)
   end
 
-  defp run_crud_option(relation_input, crud_action, ecto_schema, absinthe_generator_structs) when is_atom(relation_input) do
+  defp run_crud_option(relation_input, crud_action, ecto_schema, absinthe_generator_structs)
+       when is_atom(relation_input) do
     run_crud_option([relation_input], crud_action, ecto_schema, absinthe_generator_structs)
   end
 
@@ -40,32 +41,37 @@ defmodule AppGen.InputArguments.RelationInputs do
     )
   end
 
-  defp reduce_relation_input(relation_name, absinthe_generator_structs, crud_action, ecto_schema) when is_atom(relation_name) do
+  defp reduce_relation_input(relation_name, absinthe_generator_structs, crud_action, ecto_schema)
+       when is_atom(relation_name) do
     add_relational_input_type(absinthe_generator_structs, crud_action, ecto_schema, relation_name)
   end
 
   defp reduce_relation_input(
-    {relation_name, sub_relation_input},
-    absinthe_generator_structs,
-    crud_action,
-    ecto_schema
-  ) when is_atom(sub_relation_input) do
+         {relation_name, sub_relation_input},
+         absinthe_generator_structs,
+         crud_action,
+         ecto_schema
+       )
+       when is_atom(sub_relation_input) do
     relation_name
-      |> reduce_relation_input(absinthe_generator_structs, crud_action, ecto_schema)
-      |> then(&reduce_relation_input(
+    |> reduce_relation_input(absinthe_generator_structs, crud_action, ecto_schema)
+    |> then(
+      &reduce_relation_input(
         sub_relation_input,
         &1,
         crud_action,
         {ecto_schema, EctoUtils.schema_association_module(ecto_schema, relation_name)}
-      ))
+      )
+    )
   end
 
   defp reduce_relation_input(
-    {relation_name, sub_relation_inputs_or_relation_args},
-    absinthe_generator_structs,
-    crud_action,
-    ecto_schema
-  ) when is_list(sub_relation_inputs_or_relation_args) do
+         {relation_name, sub_relation_inputs_or_relation_args},
+         absinthe_generator_structs,
+         crud_action,
+         ecto_schema
+       )
+       when is_list(sub_relation_inputs_or_relation_args) do
     if arg_opts?(sub_relation_inputs_or_relation_args) do
       add_relational_input_type_with_args(
         absinthe_generator_structs,
@@ -84,67 +90,94 @@ defmodule AppGen.InputArguments.RelationInputs do
   end
 
   defp reduce_relation_input(
-    {relation_name, {relation_args, sub_relation_inputs}},
-    absinthe_generator_structs,
-    crud_action,
-    ecto_schema
-  ) do
+         {relation_name, {relation_args, sub_relation_inputs}},
+         absinthe_generator_structs,
+         crud_action,
+         ecto_schema
+       ) do
     absinthe_generator_structs
-      |> add_relational_input_type_with_args(
-        crud_action,
-        ecto_schema,
-        relation_name,
-        relation_args
-      )
-      |> then(&run_option(
+    |> add_relational_input_type_with_args(
+      crud_action,
+      ecto_schema,
+      relation_name,
+      relation_args
+    )
+    |> then(
+      &run_option(
         [{crud_action, sub_relation_inputs}],
         {ecto_schema, EctoUtils.schema_association_module(ecto_schema, relation_name)},
         &1
-      ))
+      )
+    )
   end
 
-  defp add_relational_input_type(absinthe_generator_structs, crud_action, ecto_schema, relation_name) do
+  defp add_relational_input_type(
+         absinthe_generator_structs,
+         crud_action,
+         ecto_schema,
+         relation_name
+       ) do
     current_schema = current_ecto_schema(ecto_schema)
     type_name = ecto_schema_input_type_name(crud_action, ecto_schema, relation_name)
     relation_schema = EctoUtils.schema_association_module(current_schema, relation_name)
 
-    Utils.update_absinthe_schema_type_struct(absinthe_generator_structs, root_ecto_schema(ecto_schema), fn
-      %AbsintheGenerator.Type{} = type_struct ->
-        type_struct
+    Utils.update_absinthe_schema_type_struct(
+      absinthe_generator_structs,
+      root_ecto_schema(ecto_schema),
+      fn
+        %AbsintheGenerator.Type{} = type_struct ->
+          type_struct
           |> Map.update!(
             :objects,
-            &generate_and_append_object_type_struct(&1, type_name, crud_action, relation_schema, [])
+            &generate_and_append_object_type_struct(
+              &1,
+              type_name,
+              crud_action,
+              relation_schema,
+              []
+            )
           )
           |> Map.update!(
             :objects,
             &add_input_type_to_parent(&1, type_name, current_schema, relation_name)
           )
-    end)
+      end
+    )
   end
 
   defp add_relational_input_type_with_args(
-    absinthe_generator_structs,
-    crud_action,
-    ecto_schema,
-    relation_name,
-    relation_args
-  ) do
+         absinthe_generator_structs,
+         crud_action,
+         ecto_schema,
+         relation_name,
+         relation_args
+       ) do
     current_schema = current_ecto_schema(ecto_schema)
     type_name = ecto_schema_input_type_name(crud_action, ecto_schema, relation_name)
     relation_schema = EctoUtils.schema_association_module(current_schema, relation_name)
 
-    Utils.update_absinthe_schema_type_struct(absinthe_generator_structs, root_ecto_schema(ecto_schema), fn
-      %AbsintheGenerator.Type{} = type_struct ->
-        type_struct
+    Utils.update_absinthe_schema_type_struct(
+      absinthe_generator_structs,
+      root_ecto_schema(ecto_schema),
+      fn
+        %AbsintheGenerator.Type{} = type_struct ->
+          type_struct
           |> Map.update!(
             :objects,
-            &generate_and_append_object_type_struct(&1, type_name, crud_action, relation_schema, relation_args)
+            &generate_and_append_object_type_struct(
+              &1,
+              type_name,
+              crud_action,
+              relation_schema,
+              relation_args
+            )
           )
           |> Map.update!(
             :objects,
             &add_input_type_to_parent(&1, type_name, current_schema, relation_name)
           )
-    end)
+      end
+    )
   end
 
   defp ecto_schema_input_type_name(crud_action, ecto_schema, relation_name) do
@@ -155,37 +188,48 @@ defmodule AppGen.InputArguments.RelationInputs do
 
   defp build_ecto_schema_type_name({parent_schema_or_schemas, ecto_schema}) do
     build_ecto_schema_type_name(parent_schema_or_schemas) <>
-    "_" <>
-    build_ecto_schema_type_name(ecto_schema)
+      "_" <>
+      build_ecto_schema_type_name(ecto_schema)
   end
 
   defp build_ecto_schema_type_name(ecto_schema) do
     EctoUtils.schema_module_resource_name(ecto_schema)
   end
 
-  defp generate_and_append_object_type_struct(type_object_structs, type_name, crud_action, ecto_schema, relation_args) do
-    type_object_structs ++ [%AbsintheGenerator.Type.Object{
-      name: type_name,
-      input?: true,
-      fields: generate_type_object_fields(type_name, ecto_schema, crud_action, relation_args)
-    }]
+  defp generate_and_append_object_type_struct(
+         type_object_structs,
+         type_name,
+         crud_action,
+         ecto_schema,
+         relation_args
+       ) do
+    type_object_structs ++
+      [
+        %AbsintheGenerator.Type.Object{
+          name: type_name,
+          input?: true,
+          fields: generate_type_object_fields(type_name, ecto_schema, crud_action, relation_args)
+        }
+      ]
   end
 
   defp generate_type_object_fields(type_name, ecto_schema, crud_action, relation_args) do
     ecto_schema.__changeset__()
-      |> Map.take(parse_schema_field_keys_with_args(type_name, ecto_schema, crud_action, relation_args))
-      |> Enum.map(fn {field, type} ->
-        field_struct = %AbsintheGenerator.Type.Object.Field{
-          name: to_string(field),
-          type: AbsintheUtils.normalize_ecto_type(type)
-        }
+    |> Map.take(
+      parse_schema_field_keys_with_args(type_name, ecto_schema, crud_action, relation_args)
+    )
+    |> Enum.map(fn {field, type} ->
+      field_struct = %AbsintheGenerator.Type.Object.Field{
+        name: to_string(field),
+        type: AbsintheUtils.normalize_ecto_type(type)
+      }
 
-        if relation_args[:required] && field in relation_args[:required] do
-          AbsintheGenerator.Type.maybe_add_non_null(field_struct)
-        else
-          field_struct
-        end
-      end)
+      if relation_args[:required] && field in relation_args[:required] do
+        AbsintheGenerator.Type.maybe_add_non_null(field_struct)
+      else
+        field_struct
+      end
+    end)
   end
 
   defp parse_schema_field_keys_with_args(_, ecto_schema, crud_action, []) do
@@ -197,18 +241,23 @@ defmodule AppGen.InputArguments.RelationInputs do
 
     cond do
       relation_args[:blacklist_non_required?] && !relation_args[:required] ->
-        Logger.error("[AppGen.InputArguments.RelationInputs] :blacklist_non_required? is set for #{type_name} but no :required keys found")
+        Logger.error(
+          "[AppGen.InputArguments.RelationInputs] :blacklist_non_required? is set for #{type_name} but no :required keys found"
+        )
 
         fields
 
-      !relation_args[:required] -> fields
+      !relation_args[:required] ->
+        fields
 
-      true -> EctoUtils.fields_intersection(fields, relation_args[:required])
+      true ->
+        EctoUtils.fields_intersection(fields, relation_args[:required])
     end
   end
 
   def filtered_schema_fields(ecto_schema, crud_action) do
-    blacklist_types = AbsintheUtils.blacklist_input_types() ++ (if crud_action === :create, do: [:id], else: [])
+    blacklist_types =
+      AbsintheUtils.blacklist_input_types() ++ if crud_action === :create, do: [:id], else: []
 
     EctoUtils.schema_fields(ecto_schema) -- blacklist_types
   end
@@ -219,13 +268,17 @@ defmodule AppGen.InputArguments.RelationInputs do
     Enum.map(type_object_structs, fn
       %AbsintheGenerator.Type.Object{name: ^parent_object_type_name} = object_struct ->
         Map.update!(object_struct, :fields, fn fields ->
-          fields ++ [%AbsintheGenerator.Type.Object.Field{
-            name: to_string(relation_name),
-            type: ecto_schema_relational_field_type(type_name, ecto_schema, relation_name)
-          }]
+          fields ++
+            [
+              %AbsintheGenerator.Type.Object.Field{
+                name: to_string(relation_name),
+                type: ecto_schema_relational_field_type(type_name, ecto_schema, relation_name)
+              }
+            ]
         end)
 
-      type_struct -> type_struct
+      type_struct ->
+        type_struct
     end)
   end
 

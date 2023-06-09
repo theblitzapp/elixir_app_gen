@@ -2,9 +2,10 @@ defmodule AppGen.EctoContextGenerator do
   @moduledoc false
 
   def context_path(context_module) do
-    context_app_module = Mix.Phoenix.context_app()
+    context_app_module =
+      Mix.Phoenix.context_app()
       |> to_string
-      |> Macro.camelize
+      |> Macro.camelize()
 
     context_module = String.replace(context_module, ~r/^#{context_app_module}\./i, "")
 
@@ -20,9 +21,9 @@ defmodule AppGen.EctoContextGenerator do
 
   def context_module(schema) when is_binary(schema) do
     schema
-      |> String.split(".")
-      |> Enum.drop(-1)
-      |> Enum.join(".")
+    |> String.split(".")
+    |> Enum.drop(-1)
+    |> Enum.join(".")
   end
 
   def create_context_module_for_schemas(repo, context_module, schemas) do
@@ -42,6 +43,7 @@ defmodule AppGen.EctoContextGenerator do
   end
 
   defp maybe_repo_module_attribute(nil), do: ""
+
   defp maybe_repo_module_attribute(repo) do
     repo_name = repo_underscore_name(repo)
 
@@ -57,13 +59,15 @@ defmodule AppGen.EctoContextGenerator do
   end
 
   defp create_ecto_shorts_crud_functions(schema, repo) do
-    schema_module = schema |> Macro.camelize |> String.split(".") |> List.last
+    schema_module = schema |> Macro.camelize() |> String.split(".") |> List.last()
     schema_name = Macro.underscore(schema_module)
-    repo_opt = case repo_underscore_name(repo) do
-      "repo" -> ", @repo"
-      nil -> ""
-      repo -> ", @#{repo}_repo"
-    end
+
+    repo_opt =
+      case repo_underscore_name(repo) do
+        "repo" -> ", @repo"
+        nil -> ""
+        repo -> ", @#{repo}_repo"
+      end
 
     """
       @spec create_#{schema_name}(map) :: EctoShorts.Actions.schema_res()
@@ -99,10 +103,10 @@ defmodule AppGen.EctoContextGenerator do
   end
 
   defp repo_underscore_name(repo) do
-    repo |> String.split(".") |> List.last |> Macro.underscore
+    repo |> String.split(".") |> List.last() |> Macro.underscore()
   end
 
   def to_module_string(any) do
-    any |> to_string |> Macro.camelize
+    any |> to_string |> Macro.camelize()
   end
 end

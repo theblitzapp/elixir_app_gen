@@ -3,11 +3,11 @@ defmodule AppGen.ConfigState.Expander do
 
   def expand(config_structs) do
     config_structs
-      |> expand_crud_types
-      |> pre_merge_types
-      |> AbsintheSchemaBuilder.generate
-      |> run_config_functions
-      |> AbsintheTypeMerge.maybe_merge_types
+    |> expand_crud_types
+    |> pre_merge_types
+    |> AbsintheSchemaBuilder.generate()
+    |> run_config_functions
+    |> AbsintheTypeMerge.maybe_merge_types()
   end
 
   defp pre_merge_types(generation_items) do
@@ -19,9 +19,10 @@ defmodule AppGen.ConfigState.Expander do
   defp expand_crud_types(generation_items) do
     Enum.flat_map(generation_items, fn
       %AbsintheGenerator.CrudResource{} = generation_item ->
-        generation_item |> AbsintheGenerator.CrudResource.run |> Enum.map(&elem(&1, 0))
+        generation_item |> AbsintheGenerator.CrudResource.run() |> Enum.map(&elem(&1, 0))
 
-      generation_item -> [generation_item]
+      generation_item ->
+        [generation_item]
     end)
   end
 

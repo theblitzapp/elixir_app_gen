@@ -1,4 +1,6 @@
 defmodule AppGen.InputArguments.RelationInputsTest do
+  use ExUnit.Case, async: true
+
   describe "&run_option/3" do
     # test "converts a singular relation to input argumen" do
     # end

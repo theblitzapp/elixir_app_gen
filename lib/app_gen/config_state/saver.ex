@@ -16,7 +16,7 @@ defmodule AppGen.ConfigState.Saver do
 
   def read_from_file do
     @state_file
-      |> File.read!
-      |> :erlang.binary_to_term
+    |> File.read!()
+    |> :erlang.binary_to_term()
   end
 end

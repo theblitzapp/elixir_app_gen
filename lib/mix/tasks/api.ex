@@ -14,48 +14,56 @@ defmodule Mix.Tasks.AppGen.Api do
   def run(args) do
     AppGenHelpers.ensure_not_in_umbrella!("app_gen.gen.api")
 
-    {opts, _extra_args, _} = OptionParser.parse(args,
-      switches: [
-        dirname: :string,
-        file_name: :string,
-        force: :boolean,
-        quiet: :boolean
-      ]
-    )
+    {opts, _extra_args, _} =
+      OptionParser.parse(args,
+        switches: [
+          dirname: :string,
+          file_name: :string,
+          force: :boolean,
+          quiet: :boolean
+        ]
+      )
 
-    generator_structs = opts[:dirname]
+    generator_structs =
+      opts[:dirname]
       |> AppGenHelpers.get_app_gen_file_path(opts[:file_name])
-      |> ConfigState.parse_and_expand
+      |> ConfigState.parse_and_expand()
 
     different_generator_structs = ConfigState.diff_and_save(generator_structs)
 
     case different_generator_structs do
-      [] when generator_structs !== [] -> Mix.raise("No new generator structs found to generate since last generation")
-      [] -> Mix.raise("No generator structs found to generate")
+      [] when generator_structs !== [] ->
+        Mix.raise("No new generator structs found to generate since last generation")
+
+      [] ->
+        Mix.raise("No generator structs found to generate")
+
       structs ->
         structs
-          |> generate_templates
-          |> write_generated_templates(Keyword.take(opts, [:force, :quiet]))
+        |> generate_templates
+        |> write_generated_templates(Keyword.take(opts, [:force, :quiet]))
     end
   end
 
   defp generate_templates(generation_structs) do
     generation_structs
-      |> Enum.reduce([], fn
-        (generation_item, acc) ->
-          case AbsintheGenerator.run(generation_item) do
-            [str | _] = template when is_binary(str) ->
-              [{generation_item, template} | acc]
+    |> Enum.reduce([], fn
+      generation_item, acc ->
+        case AbsintheGenerator.run(generation_item) do
+          [str | _] = template when is_binary(str) ->
+            [{generation_item, template} | acc]
 
-            generation_item_children -> generation_item_children ++ acc
-          end
-      end)
-      |> Enum.reverse
+          generation_item_children ->
+            generation_item_children ++ acc
+        end
+    end)
+    |> Enum.reverse()
   end
 
   defp write_generated_templates(generation_items, opts) do
     Enum.map(generation_items, fn
-      {_generation_struct, [multi_templates | _] = struct_template_tuples} when is_tuple(multi_templates) ->
+      {_generation_struct, [multi_templates | _] = struct_template_tuples}
+      when is_tuple(multi_templates) ->
         Enum.map(struct_template_tuples, fn {generation_struct_item, template} ->
           AbsintheGenerator.FileWriter.write(generation_struct_item, template, opts)
         end)

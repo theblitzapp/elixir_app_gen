@@ -1,8 +1,12 @@
 defmodule Mix.Tasks.AppGen.Phx.New do
-  doc = case Code.fetch_docs(Mix.Tasks.Phx.New) do
-    {_, _, _, _, %{"en" => doc}, _, _} -> String.replace(doc, "phx.new", "app_gen.phx.new")
-    _ -> "Phoenix not istalled, please make sure you can run `mix phx.install` before using this command"
-  end
+  doc =
+    case Code.fetch_docs(Mix.Tasks.Phx.New) do
+      {_, _, _, _, %{"en" => doc}, _, _} ->
+        String.replace(doc, "phx.new", "app_gen.phx.new")
+
+      _ ->
+        "Phoenix not istalled, please make sure you can run `mix phx.install` before using this command"
+    end
 
   @shortdoc "Creates a prod ready phoenix app, can supply all the same parameters as mix phx.new"
   @moduledoc """
@@ -31,18 +35,33 @@ defmodule Mix.Tasks.AppGen.Phx.New do
   alias AppGen.ProjectGenerator.Phx
 
   @phx_switches [
-    dev: :boolean, assets: :boolean, ecto: :boolean,
-    app: :string, module: :string, web_module: :string,
-    database: :string, binary_id: :boolean, html: :boolean,
-    gettext: :boolean, umbrella: :boolean, verbose: :boolean,
-    live: :boolean, dashboard: :boolean, install: :boolean,
-    prefix: :string, mailer: :boolean
+    dev: :boolean,
+    assets: :boolean,
+    ecto: :boolean,
+    app: :string,
+    module: :string,
+    web_module: :string,
+    database: :string,
+    binary_id: :boolean,
+    html: :boolean,
+    gettext: :boolean,
+    umbrella: :boolean,
+    verbose: :boolean,
+    live: :boolean,
+    dashboard: :boolean,
+    install: :boolean,
+    prefix: :string,
+    mailer: :boolean
   ]
 
   @custom_switches [
-    absinthe: :boolean, no_prometheus: :boolean,
-    no_libcluster: :boolean, no_config_mod: :boolean,
-    no_cors: :boolean, no_log_hide: :boolean, no_phx: :boolean
+    absinthe: :boolean,
+    no_prometheus: :boolean,
+    no_libcluster: :boolean,
+    no_config_mod: :boolean,
+    no_cors: :boolean,
+    no_log_hide: :boolean,
+    no_phx: :boolean
   ]
 
   def run([]) do
@@ -57,8 +76,9 @@ defmodule Mix.Tasks.AppGen.Phx.New do
 
     project_name = hd(app)
 
-    custom_flags = @custom_switches
-      |> Keyword.keys
+    custom_flags =
+      @custom_switches
+      |> Keyword.keys()
       |> Enum.map(&"--#{String.replace(to_string(&1), "_", "-")}")
 
     unless all_args[:no_phx] do
@@ -111,6 +131,11 @@ defmodule Mix.Tasks.AppGen.Phx.New do
     Mix.shell().cmd("mix phx.gen.socket User")
     Mix.shell(Mix.Shell.IO)
 
-    Mix.shell().info([:green, "* creating ", :reset, "lib/#{project_name}_web/channels/user_socket.ex"])
+    Mix.shell().info([
+      :green,
+      "* creating ",
+      :reset,
+      "lib/#{project_name}_web/channels/user_socket.ex"
+    ])
   end
 end

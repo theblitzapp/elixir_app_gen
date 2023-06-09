@@ -3,8 +3,8 @@ defmodule AppGen.ConfigState do
 
   def parse_and_expand(config_file_path) do
     config_file_path
-      |> FileParser.parse
-      |> Expander.expand
+    |> FileParser.parse()
+    |> Expander.expand()
   end
 
   def diff_and_save(generator_structs) do
