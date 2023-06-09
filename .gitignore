@@ -39,3 +39,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+*.plt
+*.plt.hash

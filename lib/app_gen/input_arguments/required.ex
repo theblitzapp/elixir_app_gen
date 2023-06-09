@@ -90,7 +90,7 @@ defmodule AppGen.InputArguments.Required do
          crud_options
        ) do
     case split_input_object(objects, ecto_schema) do
-      {nil, _} ->
+      {[], _} ->
         module_name = Utils.ecto_schema_module_underscore_name(ecto_schema)
 
         raise to_string(

@@ -9,7 +9,26 @@ defmodule AppGen.MixProject do
       description:
         "Config as code generation for phoenix applications, don't write apps, generate them",
       start_permanent: Mix.env() == :prod,
+      dialyzer: [
+        ignore_warnings: ".dialyzer-ignore.exs",
+        plt_add_apps: [:ex_unit, :mix, :credo],
+        list_unused_filters: true,
+        plt_local_path: "dialyzer",
+        plt_core_path: "dialyzer",
+        flags: [:unmatched_returns]
+      ],
       elixirc_paths: elixirc_paths(Mix.env()),
+      preferred_cli_env: [
+        coveralls: :test,
+        doctor: :test,
+        coverage: :test,
+        "coverage.html": :test,
+        "coveralls.json": :test,
+        "coveralls.lcov": :test,
+        credo: :test,
+        dialyzer: :test,
+        test: :test
+      ],
       deps: deps(),
       docs: docs(),
       package: package(),

@@ -65,7 +65,6 @@ defmodule AppGen.EctoContextGenerator do
     repo_opt =
       case repo_underscore_name(repo) do
         "repo" -> ", @repo"
-        nil -> ""
         repo -> ", @#{repo}_repo"
       end
 
