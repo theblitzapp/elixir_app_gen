@@ -10,7 +10,8 @@ defmodule AppGen.InputArguments do
   def arg_names, do: @arg_names
 
   def change_crud_input_args(absinthe_generator_structs, ecto_schema, input_args_opts) do
-    crud_options = input_args_opts
+    crud_options =
+      input_args_opts
       |> collect_args_by_name
       |> sort_arg_priority
 
@@ -41,59 +42,102 @@ defmodule AppGen.InputArguments do
   end
 
   defp reduce_crud_options(
-    {:required, required_opts},
-    ecto_schema,
-    crud_options,
-    absinthe_generator_structs
-  ) do
-    InputArguments.Required.run_option(required_opts, absinthe_generator_structs, ecto_schema, crud_options)
+         {:required, required_opts},
+         ecto_schema,
+         crud_options,
+         absinthe_generator_structs
+       ) do
+    InputArguments.Required.run_option(
+      required_opts,
+      absinthe_generator_structs,
+      ecto_schema,
+      crud_options
+    )
   end
 
   defp reduce_crud_options(
-    {:blacklist, blacklist_opts},
-    ecto_schema,
-    _crud_options,
-    absinthe_generator_structs
-  ) do
+         {:blacklist, blacklist_opts},
+         ecto_schema,
+         _crud_options,
+         absinthe_generator_structs
+       ) do
     InputArguments.Blacklist.run_option(blacklist_opts, absinthe_generator_structs, ecto_schema)
   end
 
   defp reduce_crud_options(
-    {:blacklist_non_required?, non_required_opts},
-    ecto_schema,
-    crud_options,
-    absinthe_generator_structs
-  ) do
+         {:blacklist_non_required?, non_required_opts},
+         ecto_schema,
+         crud_options,
+         absinthe_generator_structs
+       ) do
     Enum.each(non_required_opts, fn
       {crud_action, true} ->
         required_value = crud_options[:required][crud_action]
 
         if is_nil(required_value) or required_value === [] do
-          raise to_string(IO.ANSI.format([
-            :red, "Must supply ", :bright, "required", :reset,
-            :red, " key for CRUD options for ", :bright, inspect(ecto_schema), :reset,
-            :red, " when using ", :bright, "blacklist_non_required?"
-          ], true))
+          raise to_string(
+                  IO.ANSI.format(
+                    [
+                      :red,
+                      "Must supply ",
+                      :bright,
+                      "required",
+                      :reset,
+                      :red,
+                      " key for CRUD options for ",
+                      :bright,
+                      inspect(ecto_schema),
+                      :reset,
+                      :red,
+                      " when using ",
+                      :bright,
+                      "blacklist_non_required?"
+                    ],
+                    true
+                  )
+                )
         end
 
       {crud_action, _} ->
-        raise to_string(IO.ANSI.format([
-          :red, "Remove key ", :bright, "blacklist_non_required?", :reset,
-          :red, " from ", :bright, inspect(ecto_schema), :reset,
-          :red, " for ", :bright, to_string(crud_action), :reset,
-          :red, " action instead of setting to false"
-        ], true))
+        raise to_string(
+                IO.ANSI.format(
+                  [
+                    :red,
+                    "Remove key ",
+                    :bright,
+                    "blacklist_non_required?",
+                    :reset,
+                    :red,
+                    " from ",
+                    :bright,
+                    inspect(ecto_schema),
+                    :reset,
+                    :red,
+                    " for ",
+                    :bright,
+                    to_string(crud_action),
+                    :reset,
+                    :red,
+                    " action instead of setting to false"
+                  ],
+                  true
+                )
+              )
     end)
 
     absinthe_generator_structs
   end
 
   defp reduce_crud_options(
-    {:relation_inputs, relation_inputs},
-    ecto_schema,
-    _crud_options,
-    absinthe_generator_structs
-  ) do
-    InputArguments.RelationInputs.run_option(relation_inputs, ecto_schema, absinthe_generator_structs)
+         {:relation_inputs, relation_inputs},
+         ecto_schema,
+         _crud_options,
+         absinthe_generator_structs
+       ) do
+    InputArguments.RelationInputs.run_option(
+      relation_inputs,
+      ecto_schema,
+      absinthe_generator_structs
+    )
   end
 end

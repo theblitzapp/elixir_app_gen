@@ -27,7 +27,7 @@ defmodule AppGen.ProjectGenerator.Phx.Absinthe do
     )
 
     ProjectGenerator.inject_into_file!(
-    "./lib/#{project_name}_web/endpoint.ex",
+      "./lib/#{project_name}_web/endpoint.ex",
       "absinthe",
       &(&1 |> add_absinthe_to_endpoint_ex |> add_socket_to_endpoint_ex(project_name))
     )
@@ -58,12 +58,13 @@ defmodule AppGen.ProjectGenerator.Phx.Absinthe do
     replacement = replacement <> "\n      {:absinthe_phoenix, \"#{@absinthe_phx_version}\"},\n\n"
 
     mix_exs_contents
-      |> String.replace(original, replacement)
-      |> Code.format_string!
+    |> String.replace(original, replacement)
+    |> Code.format_string!()
   end
 
   defp add_absinthe_to_router_ex(project_name, router_ex_contents) do
     original = "\n  scope \"/api\", #{Macro.camelize(project_name)}Web do\n"
+
     replacement = """
     pipeline :graphql do
 
@@ -87,24 +88,26 @@ defmodule AppGen.ProjectGenerator.Phx.Absinthe do
     """
 
     router_ex_contents
-      |> String.replace(original, replacement <> original)
-      |> Code.format_string!
+    |> String.replace(original, replacement <> original)
+    |> Code.format_string!()
   end
 
   defp add_absinthe_to_application_ex(project_name, application_ex_contents) do
     original = "#{Macro.camelize(project_name)}Web.Endpoint,"
+
     replacement = """
     #{original}
     {Absinthe.Subscription, #{Macro.camelize(project_name)}Web.Endpoint},
     """
 
     application_ex_contents
-      |> String.replace(original, replacement)
-      |> Code.format_string!
+    |> String.replace(original, replacement)
+    |> Code.format_string!()
   end
 
   defp add_absinthe_to_endpoint_ex(endpoint_ex_contents) do
     original = ~r/defmodule ([\w \.]+)\n  use Phoenix.Endpoint, otp_app: :([a-z_]+)\n/
+
     replacement = """
     defmodule \\1
       use Phoenix.Endpoint, otp_app: :\\2
@@ -112,22 +115,24 @@ defmodule AppGen.ProjectGenerator.Phx.Absinthe do
     """
 
     endpoint_ex_contents
-      |> String.replace(original, replacement)
-      |> Code.format_string!
-      |> to_string
+    |> String.replace(original, replacement)
+    |> Code.format_string!()
+    |> to_string
   end
 
   defp add_socket_to_endpoint_ex(endpoint_ex_contents, project_name) do
     original = "\n  socket"
-    replacement = """
 
-    socket "/socket", #{Macro.camelize(project_name)}Web.UserSocket,
-      websocket: true,
-      longpoll: false
-    """ <> original
+    replacement =
+      """
+
+      socket "/socket", #{Macro.camelize(project_name)}Web.UserSocket,
+        websocket: true,
+        longpoll: false
+      """ <> original
 
     endpoint_ex_contents
-      |> String.replace(original, replacement)
-      |> Code.format_string!
+    |> String.replace(original, replacement)
+    |> Code.format_string!()
   end
 end

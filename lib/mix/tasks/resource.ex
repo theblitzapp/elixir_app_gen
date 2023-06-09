@@ -30,15 +30,16 @@ defmodule Mix.Tasks.AppGen.Resource do
   def run(args) do
     AppGenHelpers.ensure_not_in_umbrella!("app_gen.resource")
 
-    {opts, ecto_schema_strings, _} = OptionParser.parse(args,
-      switches: [
-        dirname: :string,
-        file_name: :string,
-        only: :keep,
-        repo: :string,
-        except: :keep
-      ]
-    )
+    {opts, ecto_schema_strings, _} =
+      OptionParser.parse(args,
+        switches: [
+          dirname: :string,
+          file_name: :string,
+          only: :keep,
+          repo: :string,
+          except: :keep
+        ]
+      )
 
     opts = AppGenHelpers.gather_keep_opts(opts)
 
@@ -53,8 +54,8 @@ defmodule Mix.Tasks.AppGen.Resource do
         ensure_context_modules_created(Mix.Phoenix.context_app(), ecto_schema_strings, opts)
 
         opts
-          |> Keyword.merge(ecto_schemas: ecto_schema_strings)
-          |> create_and_write_resource_from_schema
+        |> Keyword.merge(ecto_schemas: ecto_schema_strings)
+        |> create_and_write_resource_from_schema
     end
   end
 
@@ -75,7 +76,7 @@ defmodule Mix.Tasks.AppGen.Resource do
 
   defp create_config_contents(ecto_schemas, repo, only, except) do
     schema_strings = Enum.map(ecto_schemas, &inspect/1)
-    contexts = ecto_schemas |> Enum.map(&context_module_from_schema_module/1) |> Enum.uniq
+    contexts = ecto_schemas |> Enum.map(&context_module_from_schema_module/1) |> Enum.uniq()
 
     """
     import AppGen, only: [crud_from_schema: 2, repo_contexts: 2]
@@ -92,8 +93,8 @@ defmodule Mix.Tasks.AppGen.Resource do
 
   defp crud_schema_strings(ecto_schemas, only, except) do
     ecto_schemas
-      |> Enum.map(&"crud_from_schema(#{&1}#{build_only(only) <> build_except(except)})")
-      |> Enum.join(",\n")
+    |> Enum.map(&"crud_from_schema(#{&1}#{build_only(only) <> build_except(except)})")
+    |> Enum.join(",\n")
   end
 
   defp build_only(nil), do: ""
@@ -103,32 +104,31 @@ defmodule Mix.Tasks.AppGen.Resource do
   defp build_except(except), do: ", except: #{inspect(list_of_string_to_atoms(except))}"
 
   defp ensure_context_modules_created(context_app, ecto_schema_strings, opts) do
-    context_app_module = context_app |> to_string |> Macro.camelize
+    context_app_module = context_app |> to_string |> Macro.camelize()
 
     ecto_schema_strings
-      |> Enum.group_by(&context_module_from_schema_module/1)
-      |> Enum.map(fn {context, schemas} ->
-        if String.starts_with?(context, "#{context_app_module}.") do
-          {context, schemas}
-        else
-          {"#{context_app_module}.#{context}", schemas}
-        end
-      end)
-      |> Enum.each(&ensure_context_module_create(context_app_module, &1, opts))
+    |> Enum.group_by(&context_module_from_schema_module/1)
+    |> Enum.map(fn {context, schemas} ->
+      if String.starts_with?(context, "#{context_app_module}.") do
+        {context, schemas}
+      else
+        {"#{context_app_module}.#{context}", schemas}
+      end
+    end)
+    |> Enum.each(&ensure_context_module_create(context_app_module, &1, opts))
   end
 
   defp ensure_context_module_create(context_app_module, {context, ecto_schemas}, opts) do
     Module.safe_concat([context])
+  rescue
+    ArgumentError ->
+      Mix.shell().info("No context #{context}, creating...")
 
-    rescue
-      ArgumentError ->
-        Mix.shell().info("No context #{context}, creating...")
+      ecto_schemas
+      |> maybe_strip_app_module(context_app_module)
+      |> Mix.Tasks.AppGen.Context.generate_files_from_schemas(opts)
 
-        ecto_schemas
-          |> maybe_strip_app_module(context_app_module)
-          |> Mix.Tasks.AppGen.Context.generate_files_from_schemas(opts)
-
-        AppGenHelpers.string_to_module(context_app_module, context)
+      AppGenHelpers.string_to_module(context_app_module, context)
   end
 
   defp maybe_strip_app_module(ecto_schemas, context_app_module) do
@@ -166,4 +166,3 @@ defmodule Mix.Tasks.AppGen.Resource do
     end)
   end
 end
-

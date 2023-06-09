@@ -1,8 +1,9 @@
 defmodule AppGen.EctoContextTestGenerator do
   def test_path(context_module) do
-    context_app_module = Mix.Phoenix.context_app()
+    context_app_module =
+      Mix.Phoenix.context_app()
       |> to_string
-      |> Macro.camelize
+      |> Macro.camelize()
 
     context_module = String.replace(context_module, ~r/^#{context_app_module}\./i, "")
 
@@ -24,15 +25,13 @@ defmodule AppGen.EctoContextTestGenerator do
 
       alias #{context_module_full}
 
-      #{schemas
-         |> Enum.map(&create_ecto_shorts_crud_tests(&1, context_module))
-         |> Enum.join("\n")}
+      #{schemas |> Enum.map(&create_ecto_shorts_crud_tests(&1, context_module)) |> Enum.join("\n")}
     end
     """)
   end
 
   defp create_ecto_shorts_crud_tests(schema, context_module_string) do
-    schema_module = schema |> inspect |> Macro.camelize |> String.split(".") |> List.last
+    schema_module = schema |> inspect |> Macro.camelize() |> String.split(".") |> List.last()
     schema_name = Macro.underscore(schema_module)
     pluralized_schema_name = Inflex.pluralize(to_string(schema_name))
     factory_name = "Factory.#{context_module_string}.#{schema_module}"
@@ -128,38 +127,38 @@ defmodule AppGen.EctoContextTestGenerator do
     """
   end
 
-      # describe "&find_and_upsert#{schema_name}/1" do
-      #   test "returns a #{schema_name} when exists" do
-      #     #{schema_name} = FactoryEx.insert!(#{factory_name})
-      #     new_params = FactoryEx.build_params(#{factory_name})
+  # describe "&find_and_upsert#{schema_name}/1" do
+  #   test "returns a #{schema_name} when exists" do
+  #     #{schema_name} = FactoryEx.insert!(#{factory_name})
+  #     new_params = FactoryEx.build_params(#{factory_name})
 
-      #     assert {:ok, updated_res} = #{context_module_string}.update_#{schema_name}(
-      #       {schema_module},
-      #       #{schema_name},
-      #       new_params
-      #     )
+  #     assert {:ok, updated_res} = #{context_module_string}.update_#{schema_name}(
+  #       {schema_module},
+  #       #{schema_name},
+  #       new_params
+  #     )
 
-      #     assert new_params === Map.take(updated_res, Map.keys(updated_res))
-      #   end
+  #     assert new_params === Map.take(updated_res, Map.keys(updated_res))
+  #   end
 
-      #   test "creates a #{schema_name} when not exists" do
-      #     #{schema_name} = FactoryEx.insert!(Factory.#{context_module})
-      #     new_params = FactoryEx.build_params(Factory.#{context_module})
+  #   test "creates a #{schema_name} when not exists" do
+  #     #{schema_name} = FactoryEx.insert!(Factory.#{context_module})
+  #     new_params = FactoryEx.build_params(Factory.#{context_module})
 
-      #     assert {:ok, updated_res} = #{context_module_string}.update_#{schema_name}(
-      #       {schema_module},
-      #       #{schema_name},
-      #       new_params
-      #     )
+  #     assert {:ok, updated_res} = #{context_module_string}.update_#{schema_name}(
+  #       {schema_module},
+  #       #{schema_name},
+  #       new_params
+  #     )
 
-      #     assert new_params === Map.take(updated_res, Map.keys(updated_res))
-      #   end
+  #     assert new_params === Map.take(updated_res, Map.keys(updated_res))
+  #   end
 
-      #   test "updates a #{schema_name} when exists" do
-      #   end
-      # end
+  #   test "updates a #{schema_name} when exists" do
+  #   end
+  # end
 
   def to_module_string(any) do
-    any |> to_string |> Macro.camelize
+    any |> to_string |> Macro.camelize()
   end
 end
