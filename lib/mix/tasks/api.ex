@@ -11,6 +11,7 @@ defmodule Mix.Tasks.AppGen.Api do
   this command to generate all the api files for Absinthe
   """
 
+  @impl Mix.Task
   def run(args) do
     AppGenHelpers.ensure_not_in_umbrella!("app_gen.gen.api")
 

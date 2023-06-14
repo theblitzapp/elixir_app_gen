@@ -64,10 +64,12 @@ defmodule Mix.Tasks.AppGen.Phx.New do
     no_phx: :boolean
   ]
 
+  @impl Mix.Task
   def run([]) do
     Mix.Tasks.Help.run(["app_gen.phx.new"])
   end
 
+  @impl Mix.Task
   def run(args) do
     File.cd!("./apps")
 

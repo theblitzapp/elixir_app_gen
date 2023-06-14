@@ -19,6 +19,7 @@ defmodule AppGen.ProjectGenerator.Phx.Absinthe do
   end
   """
 
+  @spec run(String.t(), keyword) :: :ok
   def run(project_name, _opts) do
     ProjectGenerator.inject_into_file!(
       "mix.exs",

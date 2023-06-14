@@ -1,4 +1,6 @@
 defmodule AppGen.ProjectGenerator do
+  @spec inject_into_file!(String.t(), (String.t() -> iodata)) :: :ok
+  @spec inject_into_file!(String.t(), String.t(), (String.t() -> iodata)) :: :ok
   def inject_into_file!(path, inject_msg \\ "", func) do
     contents = path |> File.read!() |> func.()
 
@@ -13,6 +15,8 @@ defmodule AppGen.ProjectGenerator do
       )
 
       File.write!(path, contents)
+    else
+      :ok
     end
   end
 

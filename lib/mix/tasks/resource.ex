@@ -27,6 +27,7 @@ defmodule Mix.Tasks.AppGen.Resource do
   - `except` - Parts of the CRUD resource to exclude
   """
 
+  @impl Mix.Task
   def run(args) do
     AppGenHelpers.ensure_not_in_umbrella!("app_gen.resource")
 

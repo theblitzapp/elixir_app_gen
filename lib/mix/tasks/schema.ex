@@ -23,6 +23,7 @@ defmodule Mix.Tasks.AppGen.Schema do
 
   alias Mix.AppGenHelpers
 
+  @impl Mix.Task
   def run(args) do
     AppGenHelpers.ensure_not_in_umbrella!("app_gen.gen.resource")
 

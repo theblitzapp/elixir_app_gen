@@ -18,6 +18,7 @@ defmodule Mix.Tasks.AppGen.Context do
   alias Mix.AppGenHelpers
   alias AppGen.{EctoContextGenerator, EctoContextTestGenerator}
 
+  @impl Mix.Task
   def run(args) do
     AppGenHelpers.ensure_not_in_umbrella!("app_gen.gen.context")
 
@@ -76,6 +77,7 @@ defmodule Mix.Tasks.AppGen.Context do
     generate_files_from_schemas(ecto_schemas, opts)
   end
 
+  @spec generate_files_from_schemas([module], keyword) :: :ok
   def generate_files_from_schemas(ecto_schemas, opts) do
     ecto_schemas
     |> Enum.group_by(&EctoContextGenerator.context_module/1)
