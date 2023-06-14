@@ -1,0 +1,9 @@
+{
+  "custom_stop_words": [],
+  "coverage_options": {
+    "minimum_coverage": 0
+  },
+  "skip_files": [
+    "test/support/*"
+  ]
+}
