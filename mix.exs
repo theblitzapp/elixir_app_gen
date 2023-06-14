@@ -29,6 +29,7 @@ defmodule AppGen.MixProject do
         dialyzer: :test,
         test: :test
       ],
+      test_coverage: [tool: ExCoveralls],
       deps: deps(),
       docs: docs(),
       package: package(),
