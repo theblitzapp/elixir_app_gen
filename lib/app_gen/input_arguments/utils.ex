@@ -3,6 +3,7 @@ defmodule AppGen.InputArguments.Utils do
 
   require Logger
 
+  @spec crud_fields_from_opts(keyword) :: [String.t()]
   def crud_fields_from_opts(crud_options) do
     crud_options
     |> Keyword.values()
@@ -11,6 +12,7 @@ defmodule AppGen.InputArguments.Utils do
     |> Enum.uniq()
   end
 
+  @spec resolver_function_crud_action(String.t()) :: String.t() | nil
   def resolver_function_crud_action(resolver_module_function) do
     case Regex.run(~r/Resolvers\.[[:alpha:]]+\.([^\/]+)/, resolver_module_function,
            capture: :all_but_first

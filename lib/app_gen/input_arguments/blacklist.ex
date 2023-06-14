@@ -3,6 +3,7 @@ defmodule AppGen.InputArguments.Blacklist do
 
   alias AppGen.InputArguments.Utils
 
+  @spec run_option(keyword, [struct], String.t()) :: [map]
   def run_option(blacklist_opts, absinthe_generator_structs, ecto_schema) do
     absinthe_generator_structs
     |> Utils.update_absinthe_schema_type_struct(

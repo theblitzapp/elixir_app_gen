@@ -4,6 +4,7 @@ defmodule Mix.Tasks.AppGen do
   @shortdoc "Lists help for app_gen commands"
   @moduledoc AppGen.moduledoc()
 
+  @impl Mix.Task
   def run(_args) do
     if Mix.Project.umbrella?() do
       Mix.Task.run("help", ["--search", "app_gen.phx.new"])
