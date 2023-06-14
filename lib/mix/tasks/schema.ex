@@ -39,7 +39,7 @@ defmodule Mix.Tasks.AppGen.Schema do
       validate_repo!(opts[:repo])
 
       with :ok <- Mix.Tasks.Phx.Gen.Schema.run(extra_args) do
-        require_new_schema_file(extra_args)
+        _ = require_new_schema_file(extra_args)
         generate_factory(extra_args, opts)
       end
     else
