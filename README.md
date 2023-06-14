@@ -1,5 +1,11 @@
 # AppGen
 
+[![Build Status](https://github.com/theblitzapp/elixir_app_gen/workflows/Coveralls/badge.svg)](https://github.com/theblitzapp/elixir_app_gen)
+[![Build Status](https://github.com/theblitzapp/elixir_app_gen/workflows/Dialyzer/badge.svg)](https://github.com/theblitzapp/elixir_app_gen)
+[![Build Status](https://github.com/theblitzapp/elixir_app_gen/workflows/Credo/badge.svg)](https://github.com/theblitzapp/elixir_app_gen)
+[![Build Status](https://github.com/theblitzapp/elixir_app_gen/workflows/Doctor/badge.svg)](https://github.com/theblitzapp/elixir_app_gen)
+[![codecov](https://codecov.io/gh/theblitzapp/elixir_app_gen/branch/main/graph/badge.svg?token=P3O42SF7VJ)](https://codecov.io/gh/theblitzapp/elixir_app_gen)
+
 This tool generates various parts of our elixir applications to simplify our workflows.
 
 ### Generators
