@@ -110,7 +110,7 @@ defmodule AppGen.AbsintheSchemaBuilder do
     )
     |> Enum.map(fn {middleware_module, middleware_types} ->
       %AbsintheGenerator.Schema.Middleware{
-        module: middleware_module,
+        module: inspect(middleware_module),
         types: middleware_types
       }
     end)

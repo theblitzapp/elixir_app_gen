@@ -90,27 +90,7 @@ defmodule AppGen.InputArguments.Required do
          crud_options
        ) do
     case split_input_object(objects, ecto_schema) do
-      {[], _} ->
-        module_name = Utils.ecto_schema_module_underscore_name(ecto_schema)
-
-        raise to_string(
-                IO.ANSI.format(
-                  [
-                    "Somehow got nil when looking for ",
-                    :bright,
-                    "#{module_name}_input",
-                    :reset,
-                    :red,
-                    " for ",
-                    :bright,
-                    "required ",
-                    :reset,
-                    :red,
-                    "arg"
-                  ],
-                  true
-                )
-              )
+      {[], other_objects} -> other_objects
 
       {[input_type | _], other_objects} ->
         new_input_types =
