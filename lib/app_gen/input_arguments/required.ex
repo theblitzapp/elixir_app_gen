@@ -112,17 +112,9 @@ defmodule AppGen.InputArguments.Required do
                 )
               )
 
-      {[input_type], other_objects} ->
+      {[input_type | _], other_objects} ->
         new_input_types =
           generate_required_crud_input_types(input_type, required_opts, ecto_schema, crud_options)
-
-        other_objects ++ new_input_types ++ maybe_leave_input_type(input_type, absinthe_generator_structs, ecto_schema, crud_options)
-
-      {input_types, other_objects} ->
-        new_input_types = Enum.flat_map(
-          input_types,
-          &generate_required_crud_input_types(&1, required_opts, ecto_schema, crud_options)
-        )
 
         other_objects ++ new_input_types ++ maybe_leave_input_type(input_type, absinthe_generator_structs, ecto_schema, crud_options)
     end
