@@ -53,7 +53,7 @@ defmodule AppGen.MixProject do
       {:jason, "~> 1.3"},
       {:ecto, "~> 3.0"},
       {:ecto_shorts, ">= 1.0.0"},
-      {:credo, "~> 1.4", runtime: false},
+      {:credo, "~> 1.4", only: :test, runtime: false},
       {:dialyxir, "~> 1.0", only: :test, runtime: false},
       {:excoveralls, "~> 0.13", only: :test, runtime: false},
       {:ex_doc, "~> 0.26", only: [:dev, :test], runtime: false},
