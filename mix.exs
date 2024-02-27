@@ -48,7 +48,7 @@ defmodule AppGen.MixProject do
   defp deps do
     [
       {:absinthe_generator, "~> 0.1"},
-      {:factory_ex, "~> 0.2"},
+      {:factory_ex, "~> 0.2", only: [:dev, :test]},
       {:phoenix, "~> 1.5"},
       {:jason, "~> 1.3"},
       {:ecto, "~> 3.0"},
